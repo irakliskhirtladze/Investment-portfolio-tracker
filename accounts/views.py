@@ -22,7 +22,7 @@ class LogInView(LoginView):
     template_name = 'registration/login.html'
     authentication_form = AuthenticationForm
     redirect_authenticated_user = True
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('portfolio')
 
 
 def log_out(request):

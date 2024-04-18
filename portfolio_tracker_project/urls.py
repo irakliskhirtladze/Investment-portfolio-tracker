@@ -1,5 +1,5 @@
 """
-URL configuration for tbc_colab project.
+URL configuration for portfolio_tracker_project project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),  # New
     path('accounts/', include('accounts.urls')),  # New
+    path('portfolio/', include('portfolio.urls')),
 ]

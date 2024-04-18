@@ -1,0 +1,14 @@
+<!-- templates/portfolio/portfolio.html -->
+{% extends "base.html" %}
+{% block title %}Portfolio{% endblock title %}
+{% block content %}
+{{ user.email }}!
+<p><a href="{% url 'logout' %}">Log Out</a></p>
+<br><br>
+<p><a href="{% url 'new_transaction' %}">New Transaction</a></p>
+
+<h1>Portfolio</h1>
+
+
+
+{% endblock content %}
