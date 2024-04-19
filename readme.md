@@ -8,6 +8,17 @@ investments. The portfolio is being updated based on the individual transactions
 
 User can add or withdraw cash and buy or sell either stocks or crypto with the cash.
 
+### Usage
+Clone the repo in your local machine. Then using terminal go to the project directory and run:
+```
+python manage.py migrate
+```
+
+Run server with:
+```
+python manage.py runserver
+```
+Register and then log in to start using portfolio tracker.
 
 ### Requirements 
 Python 3.12
