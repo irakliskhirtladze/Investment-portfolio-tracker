@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        exclude = ['user', 'transaction_date']
+        exclude = ['user', 'transaction_date', 'current_value', 'current_price', 'profit_loss', 'profit_loss_percent']
 
     def clean_quantity(self):
         quantity = self.cleaned_data.get('quantity')

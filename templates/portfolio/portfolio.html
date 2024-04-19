@@ -9,6 +9,39 @@
 
 <h1>Portfolio</h1>
 
-
+<table>
+    <thead>
+        <tr>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Average Trade Price</th>
+            <th>Commissions</th>
+            <th>Cost Basis</th>
+            <th>Current Price</th>
+            <th>Value</th>
+            <th>Profit/Loss</th>
+            <th>Profit/Loss %</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in portfolio_entries %}
+        <tr>
+            <td>{{ entry.instrument_symbol }}</td>
+            <td>{{ entry.instrument_name }}</td>
+            <td>{{ entry.instrument_type }}</td>
+            <td>{{ entry.quantity }}</td>
+            <td>{{ entry.average_trade_price }}</td>
+            <td>{{ entry.commissions }}</td>
+            <td>{{ entry.cost_basis }}</td>
+            <td>{{ entry.current_price }}</td>
+            <td>{{ entry.current_value }}</td>
+            <td>{{ entry.profit_loss }}</td>
+            <td>{{ entry.profit_loss_percent }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock content %}

@@ -24,6 +24,10 @@ class PortfolioEntry(models.Model):
     average_trade_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Trade Price'))
     commissions = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Commission'))
     cost_basis = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Cost Basis'))
+    current_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Current Price'))
+    current_value = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Current Value'))
+    profit_loss = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Profit/Loss'))
+    profit_loss_percent = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Profit/Loss %'))
 
     class Meta:
         verbose_name = _('Portfolio Entry')
@@ -31,23 +35,6 @@ class PortfolioEntry(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class PortfolioSnapshot(models.Model):
-    """Stores portfolio snapshots. Fields are automatically calculated based on PortfolioEntry"""
-    entry = models.ForeignKey(PortfolioEntry, on_delete=models.CASCADE, verbose_name=_('Portfolio Entry'))
-    snapshot_date = models.DateField(auto_now=True, verbose_name=_('Snapshot Date'))
-    current_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Current Price'))
-    current_value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Current Value'))
-    profit_loss = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Profit/Loss'))
-    profit_loss_percent = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Profit/Loss %'))
-
-    class Meta:
-        verbose_name = _('Portfolio Snapshot')
-        verbose_name_plural = _('Portfolio Snapshots')
-
-    def __str__(self):
-        return str(self.snapshot_date)
 
 
 class Transaction(models.Model):
@@ -87,4 +74,4 @@ class Transaction(models.Model):
         verbose_name_plural = _('Transactions')
 
     def __str__(self):
-        return f'{self.transaction_date}, {self.instrument_symbol}, {self.transaction_type}, {self.quantity}, {self.trade_price}, {self.commission}'
+        return str(self.instrument_symbol)

@@ -2,7 +2,7 @@ from django.db.models import TextChoices
 
 
 class InstrumentType(TextChoices):
-    STOCK = 'stocks', 'Stocks'
+    STOCK = 'stock', 'Stock'
     CRYPTO = 'crypto', 'Crypto'
     CASH = 'cash', 'Cash'
 
