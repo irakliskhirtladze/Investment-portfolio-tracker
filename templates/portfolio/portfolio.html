@@ -1,47 +1,64 @@
 <!-- templates/portfolio/portfolio.html -->
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Portfolio{% endblock title %}
 {% block content %}
-{{ user.email }}!
-<p><a href="{% url 'logout' %}">Log Out</a></p>
-<br><br>
-<p><a href="{% url 'new_transaction' %}">New Transaction</a></p>
 
-<h1>Portfolio</h1>
+{% if not user.is_authenticated %}
+    <div class="header">
+        <h3>Please log in to view your portfolio</h3>
+        <br>
+        <p><a href="{% url 'login' %}">Log In</a></p>
+        <p>or</p>
+        <p><a href="{% url 'signup' %}">Sign Up</a></p>
+    </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Symbol</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Quantity</th>
-            <th>Average Trade Price</th>
-            <th>Commissions</th>
-            <th>Cost Basis</th>
-            <th>Current Price</th>
-            <th>Value</th>
-            <th>Profit/Loss</th>
-            <th>Profit/Loss %</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for entry in portfolio_entries %}
-        <tr>
-            <td>{{ entry.instrument_symbol }}</td>
-            <td>{{ entry.instrument_name }}</td>
-            <td>{{ entry.instrument_type }}</td>
-            <td>{{ entry.quantity }}</td>
-            <td>{{ entry.average_trade_price }}</td>
-            <td>{{ entry.commissions }}</td>
-            <td>{{ entry.cost_basis }}</td>
-            <td>{{ entry.current_price }}</td>
-            <td>{{ entry.current_value }}</td>
-            <td>{{ entry.profit_loss }}</td>
-            <td>{{ entry.profit_loss_percent }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<!--Content if user is logged in-->
+{% else %}
+    <p>Hi {{ user.email }}!</p>
+    <p><a href="{% url 'logout' %}">Log Out</a></p>
+    <br><br>
+    <p><a href="{% url 'transaction_pg_1' %}">New Transaction</a></p>
 
+    <div class="header">
+        <h1>Portfolio</h1>
+    </div>
+
+    <div class="container-left">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Investment Type</th>
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Average Price</th>
+                    <th scope="col">Total Commissions</th>
+                    <th scope="col">Cost basis</th>
+                    <th scope="col">Current Price</th>
+                    <th scope="col">Current Value</th>
+                    <th scope="col">P&L</th>
+                    <th scope="col">P&L %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in portfolio_entries %}
+                <tr>
+                    <td>{{ entry.investment_type }}</td>
+                    <td>{{ entry.investment_symbol }}</td>
+                    <td>{{ entry.investment_name }}</td>
+                    <td>{{ entry.quantity }}</td>
+                    <td>{{ entry.average_trade_price }}</td>
+                    <td>{{ entry.commissions }}</td>
+                    <td>{{ entry.cost_basis }}</td>
+                    <td>{{ entry.current_price }}</td>
+                    <td>{{ entry.current_value }}</td>
+                    <td>{{ entry.profit_loss }}</td>
+                    <td>{{ entry.profit_loss_percent }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
 {% endblock content %}

@@ -1,12 +1,29 @@
 <!-- templates/registration/signup.html -->
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Sign Up{% endblock title %}
 {% block content %}
-<h2>Sign Up</h2>
+
 <a href="{% url 'home' %}">Home</a>
-<form method="post">{% csrf_token %}
-{{ form.as_p }}
-<button type="submit">Sign Up</button>
-<br><br>Or <a href="{% url 'login' %}">Log in</a> if already registered
-</form>
+
+<div class="header">
+    <h1>Sign Up</h1>
+</div>
+
+<div class="container">
+    <form method="post">{% csrf_token %}
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required>
+
+        <label for="password1">Password:</label>
+        <input type="password" id="password1" name="password1" required>
+
+        <label for="password2">Confirm Password:</label>
+        <input type="password" id="password2" name="password2" required>
+        <button type="submit">Sign Up</button>
+    </form>
+    <br><br>
+    <p>Or <a href="{% url 'login' %}">Log in</a> if already registered</p>
+</div>
+
 {% endblock content %}

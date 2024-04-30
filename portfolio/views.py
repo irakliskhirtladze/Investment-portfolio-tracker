@@ -1,31 +1,33 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from portfolio.forms import TransactionForm
-from portfolio.models import PortfolioEntry
+from portfolio.forms import StockTransactionForm, CryptoTransactionForm, CashTransactionForm
+from portfolio.models import Portfolio
 from portfolio.utils import update_portfolio, check_transaction_form_data
 
 
-@login_required
-def new_transaction(request):
-    """Make a transaction for the logged-in user. Buy or sell an instrument or make a cash deposit/withdrawal"""
+def show_portfolio(request):
+    portfolio = Portfolio.objects.filter(user=request.user)
+    return render(request, 'portfolio/portfolio.html', {'portfolio': portfolio})
+
+
+def show_transaction_1(request):
+    return render(request, 'portfolio/transaction_1.html')
+
+
+def show_transaction_2(request):
     if request.method == 'POST':
-        form = TransactionForm(request.POST)
+        investment_type = request.POST.get('investment_type')
+        print(f'Investment type: {investment_type}')
+        if investment_type == 'Stock':
+            form = StockTransactionForm(request.POST)
+        elif investment_type == 'Crypto':
+            form = CryptoTransactionForm(request.POST)
+        elif investment_type == 'Cash':
+            form = CashTransactionForm(request.POST)
+        return render(request, 'portfolio/transaction_2.html', {'form': form, 'investment_type': investment_type})
 
-        if check_transaction_form_data(form):
-            transaction = form.save(commit=False)
-            transaction.user = request.user
-            transaction.save()
-            update_portfolio(transaction)
-
-            return redirect('new_transaction')
-
-    form = TransactionForm()
-    return render(request, 'portfolio/new_transaction.html', {'form': form})
+    # form = StockTransactionForm()
+    # return render(request, 'portfolio/transaction_2.html', {'form': form})
 
 
-@login_required
-def portfolio(request):
-    """Get a current portfolio based on the transactions made"""
-    portfolio_entries = PortfolioEntry.objects.filter(user=request.user).order_by('quantity')
-
-    return render(request, 'portfolio/portfolio.html', {'portfolio_entries': portfolio_entries})
+def save_transaction(request):
+    pass

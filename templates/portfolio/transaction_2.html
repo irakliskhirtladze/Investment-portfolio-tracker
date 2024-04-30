@@ -1,0 +1,22 @@
+<!-- templates/portfolio/transaction_2.html -->
+{% extends "base.html" %}
+{% load static %}
+{% block title %}New Transaction{% endblock title %}
+{% block content %}
+
+<p><a href="{% url 'logout' %}">Log Out</a></p>
+<br><br>
+<p><a href="{% url 'transaction_pg_1' %}">Previous step</a></p>
+
+<div class="header">
+    <h1>New {{ investment_type }} Transaction</h1>
+</div>
+
+<div class="container">
+    <form method="post" action="{% url 'save_transaction' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+</div>
+{% endblock content %}

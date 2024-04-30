@@ -14,7 +14,7 @@ class SignUpView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect('portfolio')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -27,4 +27,4 @@ class LogInView(LoginView):
 
 def log_out(request):
     logout(request)
-    return redirect('home')
+    return redirect('portfolio')

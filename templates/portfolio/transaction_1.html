@@ -1,0 +1,28 @@
+<!-- templates/portfolio/transaction_1.html -->
+{% extends "base.html" %}
+{% load static %}
+{% block title %}New Transaction{% endblock title %}
+{% block content %}
+
+<p><a href="{% url 'logout' %}">Log Out</a></p>
+<br><br>
+<p><a href="{% url 'portfolio' %}">Back to Portfolio</a></p>
+
+<div class="header">
+    <h1>New Transaction</h1>
+</div>
+
+<div class="container">
+    <form method="post" action="{% url 'transaction_pg_2' %}">
+        {% csrf_token %}
+        <label for="investment_type">Investment Type</label>
+        <select name="investment_type" id="investment_type">
+            <option value="Stock">Stock</option>
+            <option value="Crypto">Crypto</option>
+            <option value="Cash">Cash</option>
+        </select>
+        <br><br>
+        <button type="submit">Next</button>
+    </form>
+</div>
+{% endblock content %}
