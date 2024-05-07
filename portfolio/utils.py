@@ -1,5 +1,5 @@
 import random
-from portfolio.models import Portfolio
+from portfolio.models import Portfolio, CashBalance
 import requests
 from decimal import Decimal
 
@@ -53,8 +53,8 @@ def update_portfolio(transaction):
     except Exception:
         portfolio_entry = Portfolio(
             user=transaction.user,
-            instrument_symbol=transaction.instrument_symbol.upper(),
             instrument_type=transaction.instrument_type.lower().capitalize(),
+            instrument_symbol=transaction.instrument_symbol.upper(),
             instrument_name=transaction.instrument_name.lower().capitalize(),
             quantity=0,
             average_trade_price=0,
@@ -95,6 +95,46 @@ def update_portfolio(transaction):
     portfolio_entry.save()
 
 
-def update_cash(cash, transaction):
-    """Update the cash balance based on the given transaction"""
-    pass
+class PortfolioManager:
+    """Manages portfolio entries"""
+    def __init__(self, user):
+        self.user = user
+        self.portfolio = Portfolio.objects.filter(user=user)
+
+    def get_or_create_portfolio_entry(self, transaction):
+        try:
+            return Portfolio.objects.get(user=self.user, investment_symbol=transaction.instrument_symbol.upper())
+
+        except Exception:
+            portfolio_entry = Portfolio(
+                user=self.user,
+                cash_balance=0,
+                investment_type=transaction.investment_type,
+                investment_symbol=transaction.investment_symbol.upper(),
+                investment_name=transaction.investment_name.lower().capitalize(),
+                quantity=0,
+                average_trade_price=0,
+                commissions=0,
+                cost_basis=0,
+                current_price=0,
+                current_value=0,
+                profit_loss=0,
+                profit_loss_percent=0
+            )
+
+    def update_cash_balance(self, transaction):
+        try:
+            cash_balance = CashBalance.objects.get(user=self.user).cash_balance
+        except Exception:
+            cash_balance = CashBalance(user=self.user)
+            cash_balance.save()
+
+        cash_balance = cash_balance.cash_balance
+        if transaction.transaction_type == 'buy':
+            cash_balance += transaction.quantity
+        elif transaction.transaction_type == 'sell':
+            cash_balance -= transaction.quantity
+        CashBalance.objects.filter(user=self.user).update(cash_balance=cash_balance)
+
+    def update_portfolio(self, transaction):
+        pass

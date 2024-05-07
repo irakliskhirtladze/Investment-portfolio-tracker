@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from portfolio.forms import StockTransactionForm, CryptoTransactionForm, CashTransactionForm
 from portfolio.models import Portfolio, StockTransaction, CryptoTransaction, CashTransaction
-from portfolio.utils import update_portfolio, check_transaction_form_data
+from portfolio.utils import update_portfolio, check_transaction_form_data, PortfolioManager
 
 
 def show_portfolio(request):
@@ -27,6 +27,8 @@ def show_transaction_page(request):
 def save_transaction(request):
     """Saves transaction data in appropriate table based on investment type and updates portfolio"""
     if request.method == 'POST':
+        portfolio_manager = PortfolioManager(request.user)
+
         investment_type = request.POST.get('investment_type')
 
         if investment_type == 'Stock':
@@ -46,7 +48,10 @@ def save_transaction(request):
             transaction = form.save(commit=False)
             transaction.user = request.user
             transaction.save()
-            print(transaction)
-            return redirect('portfolio')
+
+            # Update portfolio based on transaction
+            if investment_type == 'Cash':
+                portfolio_manager.update_cash_balance(transaction)
+                return redirect('portfolio')
 
         return redirect('portfolio')
