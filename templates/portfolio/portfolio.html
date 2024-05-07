@@ -17,12 +17,28 @@
 {% else %}
     <p>Hi {{ user.email }}!</p>
     <p><a href="{% url 'logout' %}">Log Out</a></p>
+
     <br><br>
-    <p><a href="{% url 'transaction_pg_1' %}">New Transaction</a></p>
 
     <div class="header">
         <h1>Portfolio</h1>
     </div>
+
+    <br><br>
+
+    <form method="post" action="{% url 'transaction' %}">
+        {% csrf_token %}
+        <label for="investment_type">Choose Investment Type to Make Transaction</label>
+        <select name="investment_type" id="investment_type">
+            <option value="Stock">Stock</option>
+            <option value="Crypto">Crypto</option>
+            <option value="Cash">Cash</option>
+        </select>
+        <br><br>
+        <button type="submit">New Transaction</button>
+    </form>
+
+    <br><br>
 
     <div class="container-left">
         <table class="table table-hover">

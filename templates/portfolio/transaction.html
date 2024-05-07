@@ -6,7 +6,7 @@
 
 <p><a href="{% url 'logout' %}">Log Out</a></p>
 <br><br>
-<p><a href="{% url 'transaction_pg_1' %}">Previous step</a></p>
+<p><a href="{% url 'portfolio' %}">Home</a></p>
 
 <div class="header">
     <h1>New {{ investment_type }} Transaction</h1>
@@ -15,8 +15,10 @@
 <div class="container">
     <form method="post" action="{% url 'save_transaction' %}">
         {% csrf_token %}
+        <input type="hidden" name="investment_type" value="{{ investment_type }}">
         {{ form.as_p }}
         <button type="submit">Save</button>
     </form>
 </div>
 {% endblock content %}
+

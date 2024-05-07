@@ -40,7 +40,7 @@ class Portfolio(models.Model):
 class CashTransaction(models.Model):
     """Stores cash transactions made by user"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('User'))
-    transaction_date = models.DateField(auto_now=True, verbose_name=_('Transaction Date'))
+    transaction_date = models.DateTimeField(auto_now=True, verbose_name=_('Transaction Date'))
 
     transaction_type = models.CharField(max_length=10,
                                         choices=TransactionCurrency.choices,
@@ -67,7 +67,7 @@ class CashTransaction(models.Model):
 class CryptoTransaction(models.Model):
     """Stores crypto transactions made by user"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('User'))
-    transaction_date = models.DateField(auto_now=True, verbose_name=_('Transaction Date'))
+    transaction_date = models.DateTimeField(auto_now=True, verbose_name=_('Transaction Date'))
     name = models.CharField(max_length=100, verbose_name=_('Name'))
     symbol = models.CharField(max_length=10, null=True, blank=True, verbose_name=_('Symbol'))
 
@@ -101,7 +101,7 @@ class CryptoTransaction(models.Model):
 class StockTransaction(models.Model):
     """Stores stock transactions made by user"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('User'))
-    transaction_date = models.DateField(auto_now=True, verbose_name=_('Transaction Date'))
+    transaction_date = models.DateTimeField(auto_now=True, verbose_name=_('Transaction Date'))
     symbol = models.CharField(max_length=10, verbose_name=_('Symbol'))
     name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_('Name'))
 
