@@ -1,6 +1,5 @@
 from django import forms
 from portfolio.models import CashTransaction, CryptoTransaction, StockTransaction
-from django.core.exceptions import ValidationError
 
 
 class CashTransactionForm(forms.ModelForm):

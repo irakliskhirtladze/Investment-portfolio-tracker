@@ -41,6 +41,8 @@
     <br><br>
 
     <div class="container-left">
+        <h3>Total cash balance: ${{ cash_balance }}</h3>
+        <h3>Total portfolio value: ${{ total_portfolio_value }}</h3>
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -58,7 +60,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for entry in portfolio_entries %}
+                {% for entry in portfolio %}
                 <tr>
                     <td>{{ entry.investment_type }}</td>
                     <td>{{ entry.investment_symbol }}</td>

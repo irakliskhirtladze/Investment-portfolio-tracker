@@ -34,21 +34,21 @@ class Portfolio(models.Model):
         verbose_name_plural = _('Portfolio Entries')
 
     def __str__(self):
-        return self.investment_symbol
+        return self.investment_type
 
 
 class CashBalance(models.Model):
     """Stores portfolio entries. Fields are automatically calculated based on Transaction"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('User'))
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('User'))
     date_modified = models.DateField(auto_now=True, verbose_name=_('Date Modified'))
-    cash_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Cash Balance'))
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name=_('Cash Balance'))
 
     class Meta:
         verbose_name = _('Cash Balance')
         verbose_name_plural = _('Cash Balances')
 
     def __str__(self):
-        return str(self.cash_balance)
+        return str(self.balance)
 
 
 class CashTransaction(models.Model):
