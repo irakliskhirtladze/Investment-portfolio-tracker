@@ -1,4 +1,3 @@
-import random
 from portfolio.models import Portfolio, CashBalance
 import requests
 from decimal import Decimal
@@ -15,7 +14,7 @@ def get_stock_price(symbol):
     #     return data['Global Quote']['05. price']
     # except KeyError:
     #     return None
-    return random.randint(250, 270)
+    return 20
 
 
 def get_crypto_price(crypto_name):
@@ -28,78 +27,60 @@ def get_crypto_price(crypto_name):
     #     return data[crypto_name]['usd']
     # else:
     #     return None
-    return random.randint(55000, 70000)
+    return 1000
 
 
-# def check_transaction_form_data(form):
-#     """Check form validity
-#     and check if the financial instrument entered in form actually returns valid data from APIs"""
-#     if form.is_valid():
-#         if form.cleaned_data['instrument_type'] == 'stock':
-#             if get_stock_price(form.cleaned_data['instrument_symbol']) is not None:
-#                 return True
-#         elif form.cleaned_data['instrument_type'] == 'crypto':
-#             if get_crypto_price(form.cleaned_data['instrument_name']) is not None:
-#                 return True
-#     return False
+class TransactionManager:
+    """Manages a single transaction"""
+    def __init__(self, user):
+        self.user = user
+        self.portfolio_manager = PortfolioManager(self.user)
 
+    @staticmethod
+    def get_buy_cost(transaction):
+        return transaction.quantity * transaction.trade_price + transaction.commission
 
-# def update_portfolio(transaction):
-#     """Update the portfolio based on the given transaction"""
-#     # Retrieve the portfolio entry for the instrument symbol if it exists, otherwise create a new one
-#     try:
-#         portfolio_entry = Portfolio.objects.get(user=transaction.user,
-#                                                 investment_symbol=transaction.instrument_symbol.upper())
-#     except Exception:
-#         portfolio_entry = Portfolio(
-#             user=transaction.user,
-#             instrument_type=transaction.instrument_type.lower().capitalize(),
-#             instrument_symbol=transaction.instrument_symbol.upper(),
-#             instrument_name=transaction.instrument_name.lower().capitalize(),
-#             quantity=0,
-#             average_trade_price=0,
-#             commissions=0,
-#             cost_basis=0,
-#             current_price=0,
-#             current_value=0,
-#             profit_loss=0,
-    #         profit_loss_percent=0
-    #     )
-    #
-    # # Update portfolio entry based on the transaction type
-    # if transaction.transaction_type == 'buy':
-    #     portfolio_entry.quantity += transaction.quantity
-    #     portfolio_entry.commissions += transaction.commission
-    #     portfolio_entry.cost_basis += transaction.quantity * transaction.trade_price + transaction.commission
-    #     portfolio_entry.average_trade_price = portfolio_entry.cost_basis / portfolio_entry.quantity
-    #
-    # elif transaction.transaction_type == 'sell':
-    #     portfolio_entry.quantity -= transaction.quantity
-    #     portfolio_entry.commissions += transaction.commission
-    #     sale_proceed = transaction.trade_price * transaction.quantity - transaction.commission  # Temporary variable
-    #     profit_loss = sale_proceed - portfolio_entry.cost_basis  # Temporary variable
-    #     portfolio_entry.cost_basis -= profit_loss
-    #     portfolio_entry.average_trade_price = portfolio_entry.cost_basis / portfolio_entry.quantity
-    #
-    # # Calculate current value and profit/loss of investments
-    # if portfolio_entry.instrument_type == 'stock':
-    #     portfolio_entry.current_price = Decimal(get_stock_price(portfolio_entry.instrument_symbol))
-    # if portfolio_entry.instrument_type == 'crypto':
-    #     portfolio_entry.current_price = Decimal(get_crypto_price(portfolio_entry.instrument_name))
-    #
-    # portfolio_entry.current_value = portfolio_entry.current_price * portfolio_entry.quantity
-    # portfolio_entry.profit_loss = portfolio_entry.current_value - portfolio_entry.cost_basis
-    # portfolio_entry.profit_loss_percent = portfolio_entry.profit_loss / portfolio_entry.cost_basis * 100
-    #
-    # # Save the updated portfolio entry and make a snapshot based on entries
-    # portfolio_entry.save()
+    def transaction_instrument_exists(self, transaction, investment_type):
+        if investment_type == 'Stock':
+            if self.portfolio_manager.get_portfolio_entry(transaction, 'Stock') is None:
+                return False
+        elif investment_type == 'Crypto':
+            if self.portfolio_manager.get_portfolio_entry(transaction, 'Crypto') is None:
+                return False
+        return True
+
+    def is_transaction_valid(self, transaction, investment_type):
+        """Checks if transaction is valid and return a tuple of (True/False, message)"""
+        if transaction.quantity < 0:
+            return False, 'Quantity cannot be negative'
+        if transaction.commission < 0:
+            return False, 'Commission cannot be negative'
+
+        cash_balance = self.portfolio_manager.get_cash_balance()
+
+        if transaction.transaction_type == 'buy':
+            if cash_balance.balance < self.get_buy_cost(transaction):
+                return False, 'Insufficient funds to buy'
+
+        elif transaction.transaction_type == 'sell':
+            if not self.transaction_instrument_exists(transaction, investment_type):
+                return False, 'Instrument does not exist'
+
+            portfolio_entry = self.portfolio_manager.get_portfolio_entry(transaction, investment_type)
+            if portfolio_entry.quantity < transaction.quantity:
+                return False, 'Insufficient quantity to sell'
+
+        elif transaction.transaction_type == 'withdrawal':
+            if cash_balance.balance < transaction.quantity:
+                return False, 'Insufficient cash to withdraw'
+
+        return True, 'Valid'
 
 
 class PortfolioManager:
     """Manages portfolio entries"""
     def __init__(self, user):
         self.user = user
-        self.portfolio = Portfolio.objects.filter(user=user)
 
     def get_cash_balance(self):
         cash_balance, created = CashBalance.objects.get_or_create(user=self.user)
@@ -120,35 +101,62 @@ class PortfolioManager:
         cash_balance.save()
 
     def get_portfolio_entry(self, transaction, investment_type):
+        """Try to retrieve portfolio entry based on transaction and investment type.
+        If it doesn't exist, return None"""
+        try:
+            if investment_type == 'Stock':
+                filter_kwargs = {
+                    'user': self.user,
+                    'investment_type': investment_type,
+                    'investment_symbol': transaction.symbol.strip().upper()
+                }
+            elif investment_type == 'Crypto':
+                filter_kwargs = {
+                    'user': self.user,
+                    'investment_type': investment_type,
+                    'investment_name': transaction.name.strip().lower().capitalize()
+                }
+            else:
+                return None  # Invalid investment type
+
+            portfolio_entry = Portfolio.objects.get(**filter_kwargs)
+            return portfolio_entry
+        except Exception:
+            return None
+
+    def create_portfolio_entry(self, transaction, investment_type):
+        """Create portfolio entry and return it without saving to database"""
         if investment_type == 'Stock':
-            portfolio_entry, created = Portfolio.objects.get_or_create(
+            portfolio_entry = Portfolio(
                 user=self.user,
                 investment_type=investment_type,
                 investment_symbol=transaction.symbol.strip().upper(),
-                defaults={'quantity': 0, 'average_trade_price': 0, 'commissions': 0, 'cost_basis': 0}
+                quantity=0  # Initialize quantity to 0
             )
             return portfolio_entry
 
         elif investment_type == 'Crypto':
-            portfolio_entry, created = Portfolio.objects.get_or_create(
+            portfolio_entry = Portfolio(
                 user=self.user,
                 investment_type=investment_type,
                 investment_name=transaction.name.strip().lower().capitalize(),
-                defaults={'quantity': 0, 'average_trade_price': 0, 'commissions': 0, 'cost_basis': 0}
+                quantity=0  # Initialize quantity to 0
             )
             return portfolio_entry
 
     def update_portfolio(self, transaction, investment_type):
+        """Update a portfolio entry based on transaction and investment type"""
         cash_balance = self.get_cash_balance()
         portfolio_entry = self.get_portfolio_entry(transaction, investment_type)
+        if portfolio_entry is None:
+            portfolio_entry = self.create_portfolio_entry(transaction, investment_type)
 
         if transaction.transaction_type == 'buy':
             trade_cost = transaction.quantity * transaction.trade_price + transaction.commission
-            if trade_cost > cash_balance.balance:
-                return False
+
             portfolio_entry.quantity += transaction.quantity
             portfolio_entry.commissions += transaction.commission
-            portfolio_entry.cost_basis += transaction.quantity * transaction.trade_price + transaction.commission
+            portfolio_entry.cost_basis += trade_cost + transaction.commission
             portfolio_entry.average_trade_price = portfolio_entry.cost_basis / portfolio_entry.quantity
 
             # Update cash balance
@@ -156,13 +164,15 @@ class PortfolioManager:
             cash_balance.save()
 
         elif transaction.transaction_type == 'sell':
-            if portfolio_entry.quantity > transaction.quantity:
-                return False
+            sale_proceed = transaction.trade_price * transaction.quantity - transaction.commission
+            avg_cost_per_instrument = portfolio_entry.cost_basis / portfolio_entry.quantity
+            cost_basis_for_sale = avg_cost_per_instrument * transaction.quantity
+            remaining_cost_basis = portfolio_entry.cost_basis - cost_basis_for_sale
+            cost_basis_per_remaining = remaining_cost_basis / (portfolio_entry.quantity - transaction.quantity)
+
             portfolio_entry.quantity -= transaction.quantity
             portfolio_entry.commissions += transaction.commission
-            sale_proceed = transaction.trade_price * transaction.quantity - transaction.commission
-            profit_loss = sale_proceed - portfolio_entry.cost_basis
-            portfolio_entry.cost_basis -= profit_loss
+            portfolio_entry.cost_basis = cost_basis_per_remaining * portfolio_entry.quantity + portfolio_entry.commissions
             portfolio_entry.average_trade_price = portfolio_entry.cost_basis / portfolio_entry.quantity
 
             # Update cash balance

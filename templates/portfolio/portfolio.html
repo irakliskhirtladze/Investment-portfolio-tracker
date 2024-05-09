@@ -41,8 +41,9 @@
     <br><br>
 
     <div class="container-left">
-        <h3>Total cash balance: ${{ cash_balance }}</h3>
-        <h3>Total portfolio value: ${{ total_portfolio_value }}</h3>
+        <h2>Total portfolio value: ${{ total_portfolio_value }}</h2>
+        <h3>Cash balance: ${{ cash_balance }}</h3>
+
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -72,7 +73,7 @@
                     <td>{{ entry.current_price }}</td>
                     <td>{{ entry.current_value }}</td>
                     <td>{{ entry.profit_loss }}</td>
-                    <td>{{ entry.profit_loss_percent }}</td>
+                    <td>{{ entry.profit_loss_percent }}%</td>
                 </tr>
                 {% endfor %}
             </tbody>
