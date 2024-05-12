@@ -2,6 +2,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Portfolio{% endblock title %}
+
 {% block content %}
 
 {% if not user.is_authenticated %}
@@ -15,28 +16,30 @@
 
 <!--Content if user is logged in-->
 {% else %}
-    <p>Hi {{ user.email }}!</p>
-    <p><a href="{% url 'logout' %}">Log Out</a></p>
+    <div class="three-col-header">
+        <div class="left">
+            <p>Hi {{ user.email }}!</p>
+            <p><a href="{% url 'logout' %}">Log Out</a></p>
+        </div>
 
-    <br><br>
+        <div class="center">
+            <form method="post" action="{% url 'transaction' %}">
+                {% csrf_token %}
+                <label for="investment_type">Choose Investment Type to Make Transaction</label>
+                <select name="investment_type" id="investment_type">
+                    <option value="Stock">Stock</option>
+                    <option value="Crypto">Crypto</option>
+                    <option value="Cash">Cash</option>
+                </select>
+                <br><br>
+                <button type="submit">New Transaction</button>
+            </form>
+        </div>
 
-    <div class="header">
-        <h1>Portfolio</h1>
+        <div class="right">
+            <p><a href="{% url 'transactions' %}">Transactions History</a></p>
+        </div>
     </div>
-
-    <br><br>
-
-    <form method="post" action="{% url 'transaction' %}">
-        {% csrf_token %}
-        <label for="investment_type">Choose Investment Type to Make Transaction</label>
-        <select name="investment_type" id="investment_type">
-            <option value="Stock">Stock</option>
-            <option value="Crypto">Crypto</option>
-            <option value="Cash">Cash</option>
-        </select>
-        <br><br>
-        <button type="submit">New Transaction</button>
-    </form>
 
     <br><br>
 
@@ -44,7 +47,19 @@
         <h2>Total portfolio value: ${{ total_portfolio_value }}</h2>
         <h3>Cash balance: ${{ cash_balance }}</h3>
 
-        <table class="table table-hover">
+        <br><br>
+
+        <div class="button-container">
+            <form method="post" action="{% url 'refresh_portfolio' %}">
+                {% csrf_token %}
+                <button type="submit">Refresh Portfolio</button>
+            </form>
+        </div>
+
+
+        <br><br>
+
+        <table class="table-styled">
             <thead>
                 <tr>
                     <th scope="col">Investment Type</th>

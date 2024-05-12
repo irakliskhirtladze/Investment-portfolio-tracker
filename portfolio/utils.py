@@ -1,5 +1,6 @@
 from portfolio.models import Portfolio, CashBalance
 import requests
+from random import randint
 from decimal import Decimal
 
 
@@ -14,20 +15,20 @@ def get_stock_price(symbol):
     #     return data['Global Quote']['05. price']
     # except KeyError:
     #     return None
-    return 20
+    return randint(19, 21)
 
 
 def get_crypto_price(crypto_name):
     """Retrieve the crypto price for the given symbol from CoinGecko API"""
     crypto_name = crypto_name.lower()
-    # url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto_name}&vs_currencies=usd"
-    # response = requests.get(url)
-    # data = response.json()
-    # if crypto_name in data:
-    #     return data[crypto_name]['usd']
-    # else:
-    #     return None
-    return 1000
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto_name}&vs_currencies=usd"
+    response = requests.get(url)
+    data = response.json()
+    if crypto_name in data:
+        return data[crypto_name]['usd']
+    else:
+        return None
+    # return randint(999, 1001)
 
 
 class TransactionManager:
@@ -190,3 +191,16 @@ class PortfolioManager:
         portfolio_entry.profit_loss_percent = portfolio_entry.profit_loss / portfolio_entry.cost_basis * 100
 
         portfolio_entry.save()
+
+    def refresh_portfolio(self):
+        """Update current price for all portfolio entries and related metrics"""
+        for portfolio_entry in Portfolio.objects.filter(user=self.user):
+            if portfolio_entry.investment_type == 'Stock':
+                portfolio_entry.current_price = Decimal(get_stock_price(portfolio_entry.investment_symbol))
+            elif portfolio_entry.investment_type == 'Crypto':
+                portfolio_entry.current_price = Decimal(get_crypto_price(portfolio_entry.investment_name))
+
+            portfolio_entry.current_value = portfolio_entry.current_price * portfolio_entry.quantity
+            portfolio_entry.profit_loss = portfolio_entry.current_value - portfolio_entry.cost_basis
+            portfolio_entry.profit_loss_percent = portfolio_entry.profit_loss / portfolio_entry.cost_basis * 100
+            portfolio_entry.save()

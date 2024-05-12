@@ -135,12 +135,32 @@ button:hover {
     background-color: #0056b3;
 }
 
+.button-container {
+    float: left;
+    clear: left;
+}
+
 /*Arrange header items*/
 .header {
     display: flex;
     flex-direction: column;
     align-content: center;
     text-align: center;
+}
+
+/*Arrange 3 column header items*/
+.three-col-header {
+    display: flex;
+    justify-content: space-between;
+}
+.left {
+    text-align: left;
+}
+.middle {
+    text-align: center;
+}
+.right {
+    text-align: right;
 }
 
 /*Genereic container styles*/
@@ -190,4 +210,29 @@ th, td {
     padding: 10px;
 }
 
+/* Styled table with hover effects */
+.table-styled {
+    font-family: Arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table-styled th, .table-styled td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 12px;
+}
+
+.table-styled tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.table-styled tr:hover {
+    background-color: #ddd;
+}
+
+.table-styled th {
+    background-color: #508c51;
+    color: white;
+}
 

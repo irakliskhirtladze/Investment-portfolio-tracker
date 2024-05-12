@@ -19,6 +19,12 @@ def show_portfolio(request):
                    'total_portfolio_value': total_portfolio_value})
 
 
+def refresh_portfolio(request):
+    portfolio_manager = PortfolioManager(request.user)
+    portfolio_manager.refresh_portfolio()
+    return redirect('portfolio')
+
+
 def show_transaction_page(request):
     if request.method == 'POST':
         investment_type = request.POST.get('investment_type')
@@ -73,3 +79,16 @@ def save_transaction(request):
 
         return render(request, 'portfolio/transaction.html', {'form': form,
                                                               'investment_type': investment_type})
+
+
+def all_transactions(request):
+    """Retrieves all transactions from cash transactions, stock transactions and crypto transactions, combines them,
+    sorts by date and renders them in a table"""
+    cash_transactions = CashTransaction.objects.filter(user=request.user)
+    stock_transactions = StockTransaction.objects.filter(user=request.user)
+    crypto_transactions = CryptoTransaction.objects.filter(user=request.user)
+
+    transactions = list(cash_transactions) + list(stock_transactions) + list(crypto_transactions)
+    transactions.sort(key=lambda x: x.transaction_date, reverse=True)
+
+    return render(request, 'portfolio/transactions.html', {'transactions': transactions})

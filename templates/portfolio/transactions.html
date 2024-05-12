@@ -1,0 +1,18 @@
+<!-- templates/portfolio/transactions.html -->
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Portfolio{% endblock title %}
+
+{% block content %}
+
+<p>Hi {{ user.email }}!</p>
+<p><a href="{% url 'logout' %}">Log Out</a></p>
+
+<h1>Transactions</h1>
+<ul>
+    {% for transaction in transactions %}
+    <li>{{ transaction.transaction_date }} - {{ transaction }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock content %}
