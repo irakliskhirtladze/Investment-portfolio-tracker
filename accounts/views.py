@@ -1,30 +1,16 @@
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
-from django.contrib.auth import logout
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect
-from accounts.forms import CustomUserCreationForm
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+import requests
 
 
-class SignUpView(CreateView):
-    form_class = CustomUserCreationForm
-    success_url = reverse_lazy('login')
-    template_name = 'registration/signup.html'
+class ActivateUser(GenericAPIView):
+    def get(self, request, uid, token, format = None):
+        payload = {'uid': uid, 'token': token}
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('portfolio')
-        return super().dispatch(request, *args, **kwargs)
+        url = "http://localhost:8000/api/v1/auth/users/activation/"
+        response = requests.post(url, data = payload)
 
-
-class LogInView(LoginView):
-    template_name = 'registration/login.html'
-    authentication_form = AuthenticationForm
-    redirect_authenticated_user = True
-    success_url = reverse_lazy('portfolio')
-
-
-def log_out(request):
-    logout(request)
-    return redirect('portfolio')
+        if response.status_code == 204:
+            return Response({}, response.status_code)
+        else:
+            return Response(response.json())
