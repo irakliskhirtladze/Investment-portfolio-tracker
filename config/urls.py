@@ -16,6 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenBlacklistView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,5 +30,7 @@ urlpatterns = [
     path('auth/', include('accounts.urls')),
 
     path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path('auth/jwt/create/', TokenObtainPairView.as_view(), name='jwt-create'),
+    path('auth/jwt/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
+    path('auth/jwt/blacklist/', TokenBlacklistView.as_view(), name='jwt-blacklist'),
 ]

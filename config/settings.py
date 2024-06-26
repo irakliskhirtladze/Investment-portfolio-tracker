@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta  # Needed for SimpleJWT
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +42,8 @@ INSTALLED_APPS = [
     # 3rd party
     'rest_framework',
     'corsheaders',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'rest_framework.authtoken',
     'djoser',
     # Local
@@ -138,12 +141,13 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = "accounts.CustomUser"  # New
 
+# NEW CODE BELOW
+AUTH_USER_MODEL = "accounts.CustomUser"
 
-REST_FRAMEWORK = {  # New
+REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
         ],
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -152,7 +156,16 @@ REST_FRAMEWORK = {  # New
     'PAGE_SIZE': 10,
 }
 
-# New
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
+
 DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SEND_ACTIVATION_EMAIL': True,
@@ -162,9 +175,10 @@ DJOSER = {
         'user': 'accounts.serializers.CustomUserSerializer',
         'current_user': 'accounts.serializers.CustomUserSerializer',
     },
+    'TOKEN_MODEL': None,  # Disabled default token model to use JWT
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # new
-SITE_ID = 1  # new
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+SITE_ID = 1
 
-API_BASE_URL = 'http://127.0.0.1:8000'  # new
+API_BASE_URL = 'http://127.0.0.1:8000'

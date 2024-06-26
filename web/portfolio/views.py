@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 
 
 def index(request):
-    auth_token = request.session.get('auth_token')
+    auth_token = request.COOKIES.get('access_token')
     if not auth_token:
         return redirect('web_login')
     return render(request, 'web/portfolio/index.html', {'is_authenticated': True, 'is_homepage': True})

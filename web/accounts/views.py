@@ -1,34 +1,52 @@
 from django.shortcuts import render, redirect
 import requests
 from django.conf import settings
+from django.http import JsonResponse
+from datetime import datetime, timedelta
 
 
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        response = requests.post(f'{settings.API_BASE_URL}/auth/token/login/',
+        response = requests.post(f'{settings.API_BASE_URL}/auth/jwt/create/',
                                  data={'email': email, 'password': password})
         if response.status_code == 200:
-            request.session['auth_token'] = response.json().get('auth_token')
-            return redirect('index')
-        else:
-            return render(request,
-                          'web/accounts/login.html',
-                          {'error': 'Invalid credentials', 'current_view': 'login', 'is_authenticated': False})
+            tokens = response.json()
+            response = redirect('index')
 
-    return render(request, 'web/accounts/login.html',
-                  {'current_view': 'login', 'is_authenticated': False})
+            access_expires = datetime.utcnow() + timedelta(minutes=5)
+            refresh_expires = datetime.utcnow() + timedelta(days=1)
+
+            response.set_cookie('access_token',
+                                tokens['access'],
+                                httponly=True,
+                                secure=True,
+                                samesite='Lax',
+                                expires=access_expires)
+            response.set_cookie('refresh_token',
+                                tokens['refresh'],
+                                httponly=True,
+                                secure=True,
+                                samesite='Lax',
+                                expires=refresh_expires)
+            return response
+
+        return render(request,
+                      'web/accounts/login.html',
+                      {'error': 'Invalid credentials', 'current_view': 'login', 'is_authenticated': False})
+
+    return render(request, 'web/accounts/login.html', {'current_view': 'login', 'is_authenticated': False})
 
 
 def logout_view(request):
-    auth_token = request.session.get('auth_token')
-    if auth_token:
-        requests.post(f'{settings.API_BASE_URL}/auth/token/logout/', headers={
-            'Authorization': f'Token {auth_token}'
-        })
-        del request.session['auth_token']
-    return redirect('web_login')
+    refresh_token = request.COOKIES.get('refresh_token')
+    if refresh_token:
+        requests.post(f'{settings.API_BASE_URL}/auth/jwt/blacklist/', data={'refresh': refresh_token})
+    response = redirect('web_login')
+    response.delete_cookie('access_token')
+    response.delete_cookie('refresh_token')
+    return response
 
 
 def register_view(request):
@@ -41,8 +59,8 @@ def register_view(request):
                                  data={'email': email, 'password': password, 're_password': re_password, 'name': name})
         if response.status_code == 201:
             return redirect('web_login')
-        else:
-            return render(request, 'web/accounts/register.html', {'error': response.json(), 'current_view': 'register'})
+        return render(request, 'web/accounts/register.html', {'error': response.json(), 'current_view': 'register'})
+
     return render(request, 'web/accounts/register.html', {'current_view': 'register'})
 
 
