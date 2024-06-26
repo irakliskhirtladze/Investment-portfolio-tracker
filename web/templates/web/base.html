@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Investment Portfolio Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+
+<body>
+    <header>
+        {% block header %}
+        <nav>
+            <ul>
+                <li><a href="{% url 'index' %}">Home</a></li>
+                {% if not request.user.is_authenticated %}
+                    {% if current_view != 'login' %}
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                    {% endif %}
+                    {% if current_view != 'register' %}
+                        <li><a href="{% url 'register' %}">Register</a></li>
+                    {% endif %}
+                {% else %}
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endblock %}
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Investment Portfolio Tracker</p>
+    </footer>
+</body>
+
+</html>
