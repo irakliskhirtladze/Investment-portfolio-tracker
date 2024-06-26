@@ -1,0 +1,57 @@
+{% extends 'web/base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="password" required>
+    <br>
+    <button type="submit">Login</button>
+</form>
+<p>Don't have an account? <a href="{% url 'web_register' %}">Register here</a></p>
+
+<!--Added Javascript to handle token auth-->
+<script>
+document.getElementById('login-form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the form from submitting the default way
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('/auth/token/login/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.auth_token) {
+            console.log('Token received:', data.auth_token);  // Debugging statement
+            localStorage.setItem('auth_token', data.auth_token);
+            window.location.href = '{% url "index" %}';
+        } else {
+            document.getElementById('error').innerText = 'Invalid credentials';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('error').innerText = 'An error occurred. Please try again.';
+    });
+});
+</script>
+
+
+{% endblock %}

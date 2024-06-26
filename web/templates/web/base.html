@@ -14,16 +14,18 @@
         {% block header %}
         <nav>
             <ul>
+                {% if not is_homepage %}
                 <li><a href="{% url 'index' %}">Home</a></li>
-                {% if not request.user.is_authenticated %}
+                {% endif %}
+                {% if not is_authenticated %}
                     {% if current_view != 'login' %}
-                        <li><a href="{% url 'login' %}">Login</a></li>
+                        <li><a href="{% url 'web_login' %}">Login</a></li>
                     {% endif %}
                     {% if current_view != 'register' %}
-                        <li><a href="{% url 'register' %}">Register</a></li>
+                        <li><a href="{% url 'web_register' %}">Register</a></li>
                     {% endif %}
                 {% else %}
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                    <li><a href="{% url 'web_logout' %}">Logout</a></li>
                 {% endif %}
             </ul>
         </nav>

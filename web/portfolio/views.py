@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 
 
 def index(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    return render(request, 'web/portfolio/index.html')
+    auth_token = request.session.get('auth_token')
+    if not auth_token:
+        return redirect('web_login')
+    return render(request, 'web/portfolio/index.html', {'is_authenticated': True, 'is_homepage': True})
 
 
 def transaction(request, portfolio_id):
