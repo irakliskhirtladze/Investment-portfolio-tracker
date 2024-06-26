@@ -1,16 +1,22 @@
-from rest_framework.generics import GenericAPIView
-from rest_framework.response import Response
 import requests
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
-class ActivateUser(GenericAPIView):
-    def get(self, request, uid, token, format = None):
+class ActivateUser(APIView):
+    """
+    View to activate users automatically after following the activation link sent to their email.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, uid, token, format=None):
         payload = {'uid': uid, 'token': token}
-
-        url = "http://localhost:8000/api/v1/auth/users/activation/"
-        response = requests.post(url, data = payload)
+        url = f"{request.scheme}://{request.get_host()}/auth/users/activation/"
+        response = requests.post(url, data=payload)
 
         if response.status_code == 204:
-            return Response({}, response.status_code)
+            return Response({"message": "Your account has been activated!"}, status=status.HTTP_200_OK)
         else:
-            return Response(response.json())
+            return Response(response.json(), status=response.status_code)
