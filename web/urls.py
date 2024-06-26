@@ -9,4 +9,5 @@ urlpatterns = [
     path('register/', accounts_views.register_view, name='web_register'),
     path('logout/', accounts_views.logout_view, name='web_logout'),
     path('portfolio/<int:portfolio_id>/', portfolio_views.transaction, name='transaction'),
+    path('auth/activate/<uid>/<token>/', accounts_views.activation_view, name='activate'),
 ]

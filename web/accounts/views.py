@@ -44,3 +44,14 @@ def register_view(request):
         else:
             return render(request, 'web/accounts/register.html', {'error': response.json(), 'current_view': 'register'})
     return render(request, 'web/accounts/register.html', {'current_view': 'register'})
+
+
+def activation_view(request, uid, token):
+    """Renders the activation page after the user has clicked on the activation link sent to their email"""
+    payload = {'uid': uid, 'token': token}
+    url = f"{settings.API_BASE_URL}/auth/users/activation/"
+    response = requests.post(url, data=payload)
+
+    if response.status_code == 204:
+        return render(request, 'web/accounts/activation.html', {'success': True, 'is_activation_page': True})
+    return render(request, 'web/accounts/activation.html', {'success': False, 'is_activation_page': True})

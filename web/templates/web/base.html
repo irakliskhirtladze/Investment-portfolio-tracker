@@ -14,7 +14,7 @@
         {% block header %}
         <nav>
             <ul>
-                {% if not is_homepage %}
+                {% if not is_homepage and not is_activation_page %}
                 <li><a href="{% url 'index' %}">Home</a></li>
                 {% endif %}
                 {% if not is_authenticated %}
@@ -24,7 +24,7 @@
                     {% if current_view != 'register' %}
                         <li><a href="{% url 'web_register' %}">Register</a></li>
                     {% endif %}
-                {% else %}
+                {% else  %}
                     <li><a href="{% url 'web_logout' %}">Logout</a></li>
                 {% endif %}
             </ul>
