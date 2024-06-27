@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect
 import requests
 from django.conf import settings
-from django.http import JsonResponse
-from datetime import datetime, timedelta
 
 
 def login_view(request):
@@ -15,21 +13,8 @@ def login_view(request):
             tokens = response.json()
             response = redirect('index')
 
-            access_expires = datetime.utcnow() + timedelta(minutes=5)
-            refresh_expires = datetime.utcnow() + timedelta(days=1)
-
-            response.set_cookie('access_token',
-                                tokens['access'],
-                                httponly=True,
-                                secure=True,
-                                samesite='Lax',
-                                expires=access_expires)
-            response.set_cookie('refresh_token',
-                                tokens['refresh'],
-                                httponly=True,
-                                secure=True,
-                                samesite='Lax',
-                                expires=refresh_expires)
+            response.set_cookie('access_token', tokens['access'], httponly=True, secure=True, samesite='Lax')
+            response.set_cookie('refresh_token', tokens['refresh'], httponly=True, secure=True, samesite='Lax')
             return response
 
         return render(request,
