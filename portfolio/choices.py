@@ -1,10 +1,9 @@
 from django.db.models import TextChoices
 
 
-class InstrumentType(TextChoices):
+class TransactionCategory(TextChoices):
     STOCK = 'stock', 'Stock'
     CRYPTO = 'crypto', 'Crypto'
-    CASH = 'cash', 'Cash'
 
 
 class TransactionType(TextChoices):
@@ -12,6 +11,6 @@ class TransactionType(TextChoices):
     SELL = 'sell', 'Sell'
 
 
-class TransactionCurrency(TextChoices):
+class CurrencyTransactionType(TextChoices):
     CASH_DEPOSIT = 'deposit', 'Cash Deposit'
     CASH_WITHDRAWAL = 'withdrawal', 'Cash Withdrawal'
