@@ -37,6 +37,8 @@ class InvestmentTransaction(models.Model):
         validate_investment_transaction(self)
 
     def save(self, *args, **kwargs):
+        if self.symbol:
+            self.symbol = self.symbol.upper()
         self.clean()
         super().save(*args, **kwargs)
         self.update_portfolio_entry()
@@ -124,6 +126,10 @@ class PortfolioEntry(models.Model):
 
     def __str__(self):
         return f"{self.investment_type} - {self.investment_symbol or self.investment_name}"
+
+    def save(self, *args, **kwargs):
+        self.investment_symbol = self.investment_symbol.upper()
+        super().save(*args, **kwargs)
 
 
 class CashBalance(models.Model):
