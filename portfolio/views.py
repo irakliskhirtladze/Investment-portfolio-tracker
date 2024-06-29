@@ -1,15 +1,54 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError as DRFValidationError
-
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from portfolio.models import InvestmentTransaction, CashTransaction
-from portfolio.serializers import InvestmentTransactionSerializer, CashTransactionSerializer
+from portfolio.models import InvestmentTransaction, CashTransaction, CashBalance, PortfolioEntry
+from portfolio.serializers import InvestmentTransactionSerializer, CashTransactionSerializer, \
+    InitialCashBalanceSerializer, InitialPortfolioEntrySerializer
+
+
+class InitialSetupView(APIView):
+    """
+    Helps user with initial setup of portfolio, with cash balance and portfolio entries.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        # Handle cash balance
+        cash_data = request.data.get('cash_balance')
+        cash_serializer = InitialCashBalanceSerializer(data=cash_data)
+        if cash_serializer.is_valid():
+            CashBalance.objects.update_or_create(user=user, defaults=cash_serializer.validated_data)
+        else:
+            return Response(cash_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle portfolio entries
+        portfolio_data = request.data.get('portfolio_entries')
+        if portfolio_data:
+            for entry in portfolio_data:
+                entry_serializer = InitialPortfolioEntrySerializer(data=entry)
+                if entry_serializer.is_valid():
+                    PortfolioEntry.objects.update_or_create(
+                        user=user,
+                        investment_type=entry_serializer.validated_data['investment_type'],
+                        investment_symbol=entry_serializer.validated_data['investment_symbol'],
+                        defaults=entry_serializer.validated_data
+                    )
+                else:
+                    return Response(entry_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"detail": "Initial setup completed successfully."}, status=status.HTTP_200_OK)
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to view or create transactions once initial setup is complete.
+    """
     queryset = InvestmentTransaction.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = InvestmentTransactionSerializer
@@ -30,6 +69,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         try:
+            # Create zero cash balance if it doesn't exist in DB
+            CashBalance.objects.get_or_create(user=self.request.user)
             # Add user to serializer data
             serializer.save(user=self.request.user)
         except DjangoValidationError as e:
