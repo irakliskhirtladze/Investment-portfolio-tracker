@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from portfolio.models import InvestmentTransaction, CashTransaction, CashBalance, PortfolioEntry
 from portfolio.serializers import InvestmentTransactionSerializer, CashTransactionSerializer, \
-    InitialCashBalanceSerializer, InitialPortfolioEntrySerializer
+    CashBalanceSerializer, InitialPortfolioEntrySerializer
 
 
 class InitialSetupView(APIView):
@@ -19,9 +19,15 @@ class InitialSetupView(APIView):
     def post(self, request):
         user = request.user
 
+        # Delete existing data (if any)
+        CashBalance.objects.filter(user=user).delete()
+        PortfolioEntry.objects.filter(user=user).delete()
+
         # Handle cash balance
         cash_data = request.data.get('cash_balance')
-        cash_serializer = InitialCashBalanceSerializer(data=cash_data)
+        if cash_data:
+            cash_data['user'] = user.id
+        cash_serializer = CashBalanceSerializer(data=cash_data)
         if cash_serializer.is_valid():
             CashBalance.objects.update_or_create(user=user, defaults=cash_serializer.validated_data)
         else:
@@ -31,6 +37,7 @@ class InitialSetupView(APIView):
         portfolio_data = request.data.get('portfolio_entries')
         if portfolio_data:
             for entry in portfolio_data:
+                entry['user'] = user.id
                 entry_serializer = InitialPortfolioEntrySerializer(data=entry)
                 if entry_serializer.is_valid():
                     PortfolioEntry.objects.update_or_create(
@@ -77,21 +84,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
             # Catch model validation errors and raise DRF validation errors
             raise DRFValidationError(e.message_dict)
 
-    def handle_creation(self, request):
-        """
-        Helper method that handles the creation of transactions for both investment and cash transactions
-        to avoid code duplication.
-        """
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                self.perform_create(serializer)
-                headers = self.get_success_headers(serializer.data)
-                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-            except DRFValidationError as e:
-                return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     @action(detail=False, methods=['post'], url_path='create-investment-transaction')
     def create_investment_transaction(self, request, *args, **kwargs):
         return self.handle_creation(request)
@@ -111,3 +103,18 @@ class TransactionViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    def handle_creation(self, request):
+        """
+        Helper method that handles the creation of transactions for both investment and cash transactions
+        to avoid code duplication.
+        """
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            except DRFValidationError as e:
+                return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

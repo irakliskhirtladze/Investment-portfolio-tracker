@@ -3,6 +3,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from portfolio.choices import TransactionType, CurrencyTransactionType, TransactionCategory
+from portfolio.utils import calculate_portfolio_entry_fields, update_cash_balance, update_portfolio_entry
 from portfolio.validations import validate_investment_transaction, validate_cash_transaction
 from accounts.models import CustomUser as User
 
@@ -41,31 +42,9 @@ class InvestmentTransaction(models.Model):
             self.symbol = self.symbol.upper()
         self.clean()
         super().save(*args, **kwargs)
-        self.update_portfolio_entry()
 
-    def update_portfolio_entry(self):
-        portfolio_entry, created = PortfolioEntry.objects.get_or_create(
-            user=self.user,
-            investment_type=self.transaction_category,
-            investment_symbol=self.symbol,
-            defaults={'investment_name': self.name, 'quantity': 0}
-        )
-        if self.transaction_type == TransactionType.BUY:
-            portfolio_entry.quantity += self.quantity
-        elif self.transaction_type == TransactionType.SELL:
-            portfolio_entry.quantity -= self.quantity
-
-        portfolio_entry.save()
-        self.update_cash_balance()
-
-    def update_cash_balance(self):
-        cash_balance, created = CashBalance.objects.get_or_create(user=self.user)
-        if self.transaction_type == TransactionType.BUY:
-            cash_balance.balance -= self.quantity * self.trade_price + self.commission
-        elif self.transaction_type == TransactionType.SELL:
-            cash_balance.balance += self.quantity * self.trade_price - self.commission
-
-        cash_balance.save()
+        update_portfolio_entry(self.user, self)
+        update_cash_balance(self.user, self)
 
 
 class CashTransaction(models.Model):
@@ -92,16 +71,8 @@ class CashTransaction(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
-        self.update_cash_balance()
 
-    def update_cash_balance(self):
-        cash_balance, created = CashBalance.objects.get_or_create(user=self.user)
-        if self.transaction_type == CurrencyTransactionType.CASH_DEPOSIT:
-            cash_balance.balance += self.amount - self.commission
-        elif self.transaction_type == CurrencyTransactionType.CASH_WITHDRAWAL:
-            cash_balance.balance -= self.amount + self.commission
-
-        cash_balance.save()
+        update_cash_balance(self.user, self)
 
 
 class PortfolioEntry(models.Model):

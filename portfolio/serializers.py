@@ -3,7 +3,7 @@ from rest_framework import serializers
 from portfolio.models import InvestmentTransaction, CashTransaction, PortfolioEntry, CashBalance
 
 
-class InitialCashBalanceSerializer(serializers.ModelSerializer):
+class CashBalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = CashBalance
         fields = ['balance']
@@ -12,7 +12,13 @@ class InitialCashBalanceSerializer(serializers.ModelSerializer):
 class InitialPortfolioEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = PortfolioEntry
-        fields = ['investment_type', 'investment_symbol', 'investment_name', 'quantity']
+        fields = ['investment_type', 'investment_symbol', 'investment_name', 'quantity', 'average_trade_price']
+
+
+class PortfolioEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PortfolioEntry
+        fields = '__all__'
 
 
 class InvestmentTransactionSerializer(serializers.ModelSerializer):
