@@ -12,7 +12,7 @@
 <body>
     <header>
         {% block header %}
-        <nav>
+
             <ul>
                 {% if not is_homepage and not is_activation_page %}
                 <li><a href="{% url 'index' %}">Home</a></li>
@@ -28,7 +28,7 @@
                     <li><a href="{% url 'web_logout' %}">Logout</a></li>
                 {% endif %}
             </ul>
-        </nav>
+
         {% endblock %}
     </header>
 
