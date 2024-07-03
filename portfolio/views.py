@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError as DRFValidationError
@@ -7,7 +9,8 @@ from rest_framework.views import APIView
 
 from portfolio.models import InvestmentTransaction, CashTransaction, CashBalance, PortfolioEntry
 from portfolio.serializers import InvestmentTransactionSerializer, CashTransactionSerializer, \
-    CashBalanceSerializer, InitialPortfolioEntrySerializer
+    InitialPortfolioEntrySerializer, InitialCashBalanceSerializer
+from portfolio.utils import calculate_portfolio_entry_fields
 
 
 class InitialSetupView(APIView):
@@ -27,7 +30,7 @@ class InitialSetupView(APIView):
         cash_data = request.data.get('cash_balance')
         if cash_data:
             cash_data['user'] = user.id
-        cash_serializer = CashBalanceSerializer(data=cash_data)
+        cash_serializer = InitialCashBalanceSerializer(data=cash_data)
         if cash_serializer.is_valid():
             CashBalance.objects.update_or_create(user=user, defaults=cash_serializer.validated_data)
         else:
@@ -40,12 +43,14 @@ class InitialSetupView(APIView):
                 entry['user'] = user.id
                 entry_serializer = InitialPortfolioEntrySerializer(data=entry)
                 if entry_serializer.is_valid():
-                    PortfolioEntry.objects.update_or_create(
+                    portfolio_entry, created = PortfolioEntry.objects.update_or_create(
                         user=user,
                         investment_type=entry_serializer.validated_data['investment_type'],
                         investment_symbol=entry_serializer.validated_data['investment_symbol'],
                         defaults=entry_serializer.validated_data
                     )
+                    calculate_portfolio_entry_fields(portfolio_entry)
+                    portfolio_entry.save()
                 else:
                     return Response(entry_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

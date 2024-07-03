@@ -1,12 +1,11 @@
-# from portfolio.models import Entry, CashBalance
-# import requests
-# from random import randint
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP, getcontext
 import random
 
 from django.core.exceptions import ValidationError
 
 from portfolio.choices import TransactionType, CurrencyTransactionType
+
+getcontext().prec = 10
 
 
 def get_fake_current_price(investment_symbol):
@@ -19,6 +18,7 @@ def get_fake_current_price(investment_symbol):
 
 
 def calculate_portfolio_entry_fields(entry):
+    entry.current_price = get_fake_current_price(entry.investment_symbol)
     entry.cost_basis = entry.average_trade_price * entry.quantity + entry.commissions
     entry.current_value = entry.current_price * entry.quantity
     entry.profit_loss = entry.current_value - entry.cost_basis
@@ -32,20 +32,23 @@ def update_portfolio_entry(user, transaction):
         user=user,
         investment_type=transaction.transaction_category,
         investment_symbol=transaction.symbol,
-        defaults={'investment_name': transaction.name, 'quantity': 0}
+        defaults={'investment_name': transaction.name, 'quantity': Decimal('0'), 'average_trade_price': Decimal('0')}
     )
 
     if transaction.transaction_type == TransactionType.BUY:
         new_total_quantity = portfolio_entry.quantity + transaction.quantity
-        new_cost_basis = portfolio_entry.cost_basis + (transaction.quantity * transaction.trade_price) + transaction.commission
-        portfolio_entry.average_trade_price = new_cost_basis / new_total_quantity
+        new_total_cost = ((portfolio_entry.quantity * portfolio_entry.average_trade_price) +
+                          (transaction.quantity * transaction.trade_price))
+        portfolio_entry.average_trade_price = ((new_total_cost / new_total_quantity).
+                                               quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
         portfolio_entry.quantity = new_total_quantity
     elif transaction.transaction_type == TransactionType.SELL:
-        if portfolio_entry.quantity < transaction.quantity:
-            raise ValidationError(f"Not enough {transaction.symbol} to sell.")
         portfolio_entry.quantity -= transaction.quantity
 
     portfolio_entry.commissions += transaction.commission
+    portfolio_entry.cost_basis = (portfolio_entry.average_trade_price * portfolio_entry.quantity +
+                                  portfolio_entry.commissions).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
     portfolio_entry.save()
 
 
@@ -65,5 +68,3 @@ def update_cash_balance(user, transaction):
         cash_balance.balance -= transaction.amount + transaction.commission
 
     cash_balance.save()
-
-
