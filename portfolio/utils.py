@@ -17,8 +17,12 @@ def get_fake_current_price(investment_symbol):
     return Decimal(str(round(random.uniform(50, 500), 2)))
 
 
-def calculate_portfolio_entry_fields(entry):
-    entry.current_price = get_fake_current_price(entry.investment_symbol)
+def calculate_portfolio_entry_fields(entry, refresh=False):
+    """
+    Calculates the fields for the given portfolio entry. Used during initial setup or refreshing.
+    """
+    if refresh or entry.current_price == Decimal('0.00'):
+        entry.current_price = get_fake_current_price(entry.investment_symbol)
     entry.cost_basis = entry.average_trade_price * entry.quantity + entry.commissions
     entry.current_value = entry.current_price * entry.quantity
     entry.profit_loss = entry.current_value - entry.cost_basis
@@ -26,6 +30,9 @@ def calculate_portfolio_entry_fields(entry):
 
 
 def update_portfolio_entry(user, transaction):
+    """
+    Updates the portfolio entry for the given transaction.
+    """
     from portfolio.models import PortfolioEntry, CashBalance
 
     portfolio_entry, created = PortfolioEntry.objects.get_or_create(
@@ -53,6 +60,9 @@ def update_portfolio_entry(user, transaction):
 
 
 def update_cash_balance(user, transaction):
+    """
+    Updates the cash balance for the given transaction.
+    """
     from portfolio.models import CashBalance
 
     cash_balance, created = CashBalance.objects.get_or_create(user=user)
@@ -68,3 +78,17 @@ def update_cash_balance(user, transaction):
         cash_balance.balance -= transaction.amount + transaction.commission
 
     cash_balance.save()
+
+
+def refresh_portfolio(user):
+    """
+    Refreshes the portfolio for the given user by getting updated current prices and recalculating fields.
+    """
+    from portfolio.models import PortfolioEntry
+
+    portfolio_entries = PortfolioEntry.objects.filter(user=user)
+    for entry in portfolio_entries:
+        entry.current_price = get_fake_current_price(entry.investment_symbol)
+        calculate_portfolio_entry_fields(entry)
+        entry.save()
+

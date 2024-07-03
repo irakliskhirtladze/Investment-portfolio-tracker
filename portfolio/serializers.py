@@ -31,6 +31,9 @@ class PortfolioEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = PortfolioEntry
         fields = '__all__'
+        read_only_fields = ('user', 'investment_type', 'investment_symbol', 'investment_name', 'quantity',
+                            'average_trade_price', 'commissions', 'cost_basis', 'current_price', 'current_value',
+                            'profit_loss', 'profit_loss_percent')
 
 
 class CashBalanceSerializer(serializers.ModelSerializer):

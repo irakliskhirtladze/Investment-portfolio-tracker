@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 
 from portfolio.models import InvestmentTransaction, CashTransaction, CashBalance, PortfolioEntry
 from portfolio.serializers import InvestmentTransactionSerializer, CashTransactionSerializer, \
-    InitialPortfolioEntrySerializer, InitialCashBalanceSerializer
-from portfolio.utils import calculate_portfolio_entry_fields
+    InitialPortfolioEntrySerializer, InitialCashBalanceSerializer, PortfolioEntrySerializer
+from portfolio.utils import calculate_portfolio_entry_fields, refresh_portfolio
 
 
 class InitialSetupView(APIView):
@@ -55,6 +55,27 @@ class InitialSetupView(APIView):
                     return Response(entry_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "Initial setup completed successfully."}, status=status.HTTP_200_OK)
+
+
+class PortfolioViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows users to view their portfolio entries and refresh the portfolio.
+    """
+    queryset = PortfolioEntry.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PortfolioEntrySerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    @action(detail=False, methods=['post'], url_path='refresh')
+    def refresh_portfolio(self, request):
+        """
+        Refreshes the portfolio entries by updating the current prices and recalculating dependent fields.
+        """
+        user = request.user
+        refresh_portfolio(user)
+        return Response({"detail": "Portfolio refreshed successfully."}, status=status.HTTP_200_OK)
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -123,3 +144,4 @@ class TransactionViewSet(viewsets.ModelViewSet):
             except DRFValidationError as e:
                 return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
