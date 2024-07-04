@@ -47,10 +47,14 @@ class InitialSetupView(APIView):
                         user=user,
                         investment_type=entry_serializer.validated_data['investment_type'],
                         investment_symbol=entry_serializer.validated_data['investment_symbol'],
+                        investment_name=entry_serializer.validated_data['investment_name'],
                         defaults=entry_serializer.validated_data
                     )
-                    calculate_portfolio_entry_fields(portfolio_entry)
-                    portfolio_entry.save()
+                    try:
+                        portfolio_entry.full_clean()
+                        portfolio_entry.save()
+                    except DjangoValidationError as e:
+                        return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response(entry_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

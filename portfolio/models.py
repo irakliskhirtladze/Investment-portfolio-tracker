@@ -4,7 +4,8 @@ from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from portfolio.choices import TransactionType, CurrencyTransactionType, TransactionCategory
 from portfolio.utils import calculate_portfolio_entry_fields, update_cash_balance, update_portfolio_entry
-from portfolio.validations import validate_investment_transaction, validate_cash_transaction
+from portfolio.validations import validate_investment_transaction, validate_cash_transaction, \
+    validate_price_fetching, validate_initial_setup
 from accounts.models import CustomUser as User
 
 
@@ -83,13 +84,13 @@ class PortfolioEntry(models.Model):
     investment_name = models.CharField(max_length=100, default='', verbose_name=_('Investment Name'))
     quantity = models.DecimalField(max_digits=10, decimal_places=5, verbose_name=_('Investment Quantity'))
 
-    average_trade_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Trade Price'))
-    commissions = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Commission'))
-    cost_basis = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Cost Basis'))
-    current_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Current Price'))
-    current_value = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Current Value'))
-    profit_loss = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('P&L'))
-    profit_loss_percent = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('P&L %'))
+    average_trade_price = models.DecimalField(max_digits=15, decimal_places=5, default=0, verbose_name=_('Trade Price'))
+    commissions = models.DecimalField(max_digits=15, decimal_places=5, default=0, verbose_name=_('Commission'))
+    cost_basis = models.DecimalField(max_digits=15, decimal_places=5, default=0, verbose_name=_('Cost Basis'))
+    current_price = models.DecimalField(max_digits=15, decimal_places=5, default=0, verbose_name=_('Current Price'))
+    current_value = models.DecimalField(max_digits=15, decimal_places=5, default=0, verbose_name=_('Current Value'))
+    profit_loss = models.DecimalField(max_digits=15, decimal_places=5, default=0, verbose_name=_('P&L'))
+    profit_loss_percent = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name=_('P&L %'))
 
     class Meta:
         verbose_name = _('Portfolio Entry')
@@ -98,9 +99,8 @@ class PortfolioEntry(models.Model):
     def __str__(self):
         return f"{self.investment_type} - {self.investment_symbol or self.investment_name}"
 
-    def save(self, *args, **kwargs):
-        self.investment_symbol = self.investment_symbol.upper()
-        super().save(*args, **kwargs)
+    def clean(self):
+        validate_initial_setup(self)
 
 
 class CashBalance(models.Model):

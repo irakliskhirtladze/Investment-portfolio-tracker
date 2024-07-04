@@ -1,5 +1,7 @@
 import datetime
 from decimal import Decimal, getcontext
+from unittest.mock import patch
+
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from accounts.models import CustomUser as User
@@ -151,3 +153,4 @@ class PortfolioAPITests(APITestCase):
         self.assertEqual(portfolio_entry.profit_loss_percent,
                          (portfolio_entry.profit_loss / portfolio_entry.cost_basis * 100).quantize(Decimal('0.01'))
                          if portfolio_entry.cost_basis != 0 else 0)
+
