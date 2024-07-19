@@ -3,9 +3,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from portfolio.choices import TransactionType, CurrencyTransactionType, TransactionCategory
-from portfolio.utils import calculate_portfolio_entry_fields, update_cash_balance, update_portfolio_entry
-from portfolio.validations import validate_investment_transaction, validate_cash_transaction, \
-    validate_price_fetching, validate_initial_setup
+from portfolio.utils import update_cash_balance, update_portfolio_entry
 from accounts.models import CustomUser as User
 
 
@@ -35,18 +33,6 @@ class InvestmentTransaction(models.Model):
     def __str__(self):
         return f"{self.transaction_category} - {self.name or self.symbol}"
 
-    def clean(self):
-        validate_investment_transaction(self)
-
-    def save(self, *args, **kwargs):
-        if self.symbol:
-            self.symbol = self.symbol.upper()
-        self.clean()
-        super().save(*args, **kwargs)
-
-        update_portfolio_entry(self.user, self)
-        update_cash_balance(self.user, self)
-
 
 class CashTransaction(models.Model):
     """Stores cash transactions made by user"""
@@ -65,15 +51,6 @@ class CashTransaction(models.Model):
 
     def __str__(self):
         return f"{self.transaction_type} - {self.amount}"
-
-    def clean(self):
-        validate_cash_transaction(self)
-
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
-
-        update_cash_balance(self.user, self)
 
 
 class PortfolioEntry(models.Model):
@@ -98,9 +75,6 @@ class PortfolioEntry(models.Model):
 
     def __str__(self):
         return f"{self.investment_type} - {self.investment_symbol or self.investment_name}"
-
-    def clean(self):
-        validate_initial_setup(self)
 
 
 class CashBalance(models.Model):

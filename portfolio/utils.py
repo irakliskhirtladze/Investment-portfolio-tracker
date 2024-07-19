@@ -3,8 +3,8 @@ import os
 from dotenv import load_dotenv
 import requests
 from django.core.exceptions import ValidationError
-from rest_framework.exceptions import ValidationError as DRFValidationError
 from portfolio.choices import TransactionType, CurrencyTransactionType, TransactionCategory
+from django.utils.translation import gettext_lazy as _
 
 getcontext().prec = 10
 load_dotenv()
@@ -19,7 +19,7 @@ def fetch_stock_price(symbol):
 
     if 'c' in data and data['c'] > 0:
         return Decimal(str(data['c']))
-    return None
+    raise ValidationError({'current_price': _('Unable to fetch stock price for the given symbol.')})
 
 
 def fetch_crypto_price(crypto_name):
@@ -30,7 +30,7 @@ def fetch_crypto_price(crypto_name):
 
     if crypto_name in data:
         return Decimal(str(data[crypto_name]['usd']))
-    return None
+    raise ValidationError({'current_price': _('Unable to fetch cryptocurrency price for the given name.')})
 
 
 def calculate_portfolio_entry_fields(entry, refresh=False):
@@ -42,6 +42,7 @@ def calculate_portfolio_entry_fields(entry, refresh=False):
             entry.current_price = fetch_stock_price(entry.investment_symbol)
         elif entry.investment_type == TransactionCategory.CRYPTO:
             entry.current_price = fetch_crypto_price(entry.investment_name)
+
     entry.cost_basis = entry.average_trade_price * entry.quantity + entry.commissions
     entry.current_value = entry.current_price * entry.quantity
     entry.profit_loss = entry.current_value - entry.cost_basis
@@ -54,16 +55,15 @@ def update_portfolio_entry(user, transaction):
     """
     from portfolio.models import PortfolioEntry, CashBalance
 
-    if transaction.transaction_category == TransactionCategory.CRYPTO:
-        filter_args = {'user': user, 'investment_type': transaction.transaction_category,
-                       'investment_name': transaction.name}
-    elif transaction.transaction_category == TransactionCategory.STOCK:
-        filter_args = {'user': user, 'investment_type': transaction.transaction_category,
-                       'investment_symbol': transaction.symbol}
-
     portfolio_entry, created = PortfolioEntry.objects.get_or_create(
-        defaults={'investment_name': transaction.name, 'quantity': Decimal('0'), 'average_trade_price': Decimal('0')},
-        **filter_args
+        user=user,
+        investment_type=transaction.transaction_category,
+        investment_symbol=transaction.symbol if transaction.transaction_category == TransactionCategory.STOCK
+        else transaction.name,
+        defaults={
+            'investment_name': transaction.name if transaction.transaction_category == TransactionCategory.CRYPTO
+            else transaction.symbol,
+            'quantity': Decimal('0'), 'average_trade_price': Decimal('0')}
     )
 
     if transaction.transaction_type == TransactionType.BUY:
@@ -77,10 +77,8 @@ def update_portfolio_entry(user, transaction):
         portfolio_entry.quantity -= transaction.quantity
 
     portfolio_entry.commissions += transaction.commission
-    portfolio_entry.cost_basis = (portfolio_entry.average_trade_price * portfolio_entry.quantity +
-                                  portfolio_entry.commissions).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-    return portfolio_entry
+    calculate_portfolio_entry_fields(portfolio_entry)
+    portfolio_entry.save()
 
 
 def update_cash_balance(user, transaction):
@@ -101,7 +99,7 @@ def update_cash_balance(user, transaction):
             raise ValidationError("Not enough balance to withdraw.")
         cash_balance.balance -= transaction.amount + transaction.commission
 
-    return cash_balance
+    cash_balance.save()
 
 
 def refresh_portfolio(user):
@@ -111,13 +109,8 @@ def refresh_portfolio(user):
     from portfolio.models import PortfolioEntry
 
     portfolio_entries = PortfolioEntry.objects.filter(user=user)
-    updated_entries = []
     for entry in portfolio_entries:
-        if entry.investment_type == TransactionCategory.STOCK:
-            entry.current_price = fetch_stock_price(entry.investment_symbol)
-        elif entry.investment_type == TransactionCategory.CRYPTO:
-            entry.current_price = fetch_crypto_price(entry.investment_name)
-        calculate_portfolio_entry_fields(entry)
-        updated_entries.append(entry)
-
-    return updated_entries
+        entry.current_price = fetch_stock_price(entry.investment_symbol) if \
+            (entry.investment_type == TransactionCategory.STOCK) else fetch_crypto_price(entry.investment_name)
+        calculate_portfolio_entry_fields(entry, refresh=True)
+        entry.save()
