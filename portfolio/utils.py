@@ -1,15 +1,17 @@
 from decimal import Decimal, ROUND_HALF_UP, getcontext
-import random
+import os
+from dotenv import load_dotenv
 import requests
 from django.core.exceptions import ValidationError
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from portfolio.choices import TransactionType, CurrencyTransactionType, TransactionCategory
 
 getcontext().prec = 10
+load_dotenv()
 
 
 def fetch_stock_price(symbol):
-    api_key = 'cq2kre9r01qioqh2chp0cq2kre9r01qioqh2chpg'
+    api_key = os.getenv('FINNHUB_API_KEY')
     url = f'https://finnhub.io/api/v1/quote?symbol={symbol.upper()}&token={api_key}'
 
     response = requests.get(url)
