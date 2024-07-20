@@ -1,6 +1,6 @@
-- **This is a work-in-progress project.**
+- **The API part is 99% ready functionality-wise, with some changes added periodically.**
+- **Please consider becoming a contributor for frontend development with react framework (or other frameworks)**
 - **Please don't hesitate to let me know any issues.**
-- **And please consider becoming a contributor, especially for frontend development, since I build mostly backend.**
 
 # Overview of the project
 Investment portfolio tracker is meant to provide users with ability to track their existing investments with
@@ -44,5 +44,44 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+# API usage
+- A user must authenticate to use the api.
 
+- After login, it is possible to start using the API by making cash deposit transaction first and then follow with other types 
+of transactions.
 
+- Or alternatively you can perform initial setup, which will directly insert portfolio data.
+This can be done on [/api/initial-setup/]() endpoint. You can use the below example data for initial setup:
+
+`{
+    "portfolio_entries": [
+        {
+            "investment_type": "stock",
+            "investment_symbol": "MSN",
+            "quantity": 11.05555,
+            "average_trade_price": 0.54
+        },
+        {
+            "investment_type": "crypto",
+            "investment_symbol": "bItcoin",
+            "quantity": 10,
+            "average_trade_price": 150.00
+        },
+        {
+            "investment_type": "crypto",
+            "investment_symbol": "ziLLiqa",
+            "quantity": 5000,
+            "average_trade_price": 0.0228
+        }
+    ],
+    "cash_balance": {
+        "balance": 0
+    }
+}`
+
+Feel free to play with the data if you wish.
+
+After this you can make other transactions as needed.
+
+# Documentation
+I have added Swagger for documenting the API endpoints. Please refer to it for more details.

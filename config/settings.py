@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework.authtoken',
     'djoser',
+    'drf_yasg',
     # Local
     'accounts',
     'portfolio',
