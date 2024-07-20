@@ -10,5 +10,3 @@ backend/currencies.pkl
 backend/temp.py
 backend/staticfiles
 
-frontend/node_modules
-frontend/build
