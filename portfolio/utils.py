@@ -12,7 +12,7 @@ load_dotenv()
 
 def fetch_stock_price(symbol):
     api_key = os.getenv('FINNHUB_API_KEY')
-    url = f'https://finnhub.io/api/v1/quote?symbol={symbol.upper()}&token={api_key}'
+    url = f'https://finnhub.io/api/v1/quote?symbol={symbol}&token={api_key}'
 
     response = requests.get(url)
     data = response.json()
@@ -23,7 +23,7 @@ def fetch_stock_price(symbol):
 
 
 def fetch_crypto_price(crypto_name):
-    url = f'https://api.coingecko.com/api/v3/simple/price?ids={crypto_name.lower()}&vs_currencies=usd'
+    url = f'https://api.coingecko.com/api/v3/simple/price?ids={crypto_name}&vs_currencies=usd'
 
     response = requests.get(url)
     data = response.json()

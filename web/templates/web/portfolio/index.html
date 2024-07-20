@@ -1,8 +1,46 @@
 {% extends 'web/base.html' %}
 
-{% block title %}Home{% endblock %}
-
 {% block content %}
-    <h2>Welcome to the Investment Portfolio Tracker</h2>
-    <p>This is the homepage. Here you can manage your investments and track their performance.</p>
+<h1>Portfolio</h1>
+{% if error %}
+<p style="color: red;">{{ error }}</p>
+{% endif %}
+{% if portfolio_data %}
+<table>
+    <thead>
+        <tr>
+            <th>Investment Type</th>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Average Trade Price</th>
+            <th>Current Price</th>
+            <th>Current Value</th>
+            <th>Profit/Loss</th>
+            <th>Profit/Loss %</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in portfolio_data %}
+        <tr>
+            <td>{{ entry.investment_type }}</td>
+            <td>{{ entry.investment_symbol }}</td>
+            <td>{{ entry.investment_name }}</td>
+            <td>{{ entry.quantity }}</td>
+            <td>{{ entry.average_trade_price }}</td>
+            <td>{{ entry.current_price }}</td>
+            <td>{{ entry.current_value }}</td>
+            <td>{{ entry.profit_loss }}</td>
+            <td>{{ entry.profit_loss_percent }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'refresh_portfolio' %}">Refresh Portfolio</a>
+{% else %}
+<p>You have no entries in your portfolio.</p>
+<a href="{% url 'initial_setup' %}">Create initial portfolio setup</a> if you have holdings in your real portfolios<br>
+<a href="{% url 'transaction' portfolio_id=0 %}">Create a transaction</a> if you want to start clean
+{% endif %}
 {% endblock %}
+

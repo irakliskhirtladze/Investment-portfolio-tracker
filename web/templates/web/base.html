@@ -12,23 +12,28 @@
 <body>
     <header>
         {% block header %}
-
-            <ul>
-                {% if not is_homepage and not is_activation_page %}
-                <li><a href="{% url 'index' %}">Home</a></li>
-                {% endif %}
-                {% if not is_authenticated %}
-                    {% if current_view != 'login' %}
-                        <li><a href="{% url 'web_login' %}">Login</a></li>
+            <div class="header-left">
+                <ul class="nav-list">
+                    {% if not is_homepage and not is_activation_page and not is_authentication_page %}
+                        <li><a href="{% url 'index' %}">Home</a></li>
                     {% endif %}
-                    {% if current_view != 'register' %}
-                        <li><a href="{% url 'web_register' %}">Register</a></li>
+                    {% if is_authenticated %}
+                        <li><a href="{% url 'web_logout' %}">Logout</a></li>
+                    {% elif not is_authentication_page %}
+                        {% if current_view != 'login' %}
+                            <li><a href="{% url 'web_login' %}">Login</a></li>
+                        {% endif %}
+                        {% if current_view != 'register' %}
+                            <li><a href="{% url 'web_register' %}">Register</a></li>
+                        {% endif %}
                     {% endif %}
-                {% else  %}
-                    <li><a href="{% url 'web_logout' %}">Logout</a></li>
+                </ul>
+            </div>
+            <div class="header-right">
+                {% if is_authenticated %}
+                    <span>Welcome, {{ user.email }}</span>
                 {% endif %}
-            </ul>
-
+            </div>
         {% endblock %}
     </header>
 

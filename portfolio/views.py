@@ -47,6 +47,8 @@ class InitialSetupView(APIView):
         # Delete existing data (if any)
         CashBalance.objects.filter(user=user).delete()
         PortfolioEntry.objects.filter(user=user).delete()
+        InvestmentTransaction.objects.filter(user=user).delete()
+        CashTransaction.objects.filter(user=user).delete()
 
         # Handle cash balance
         cash_data = request.data.get('cash_balance')
