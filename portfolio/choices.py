@@ -1,7 +1,7 @@
 from django.db.models import TextChoices
 
 
-class TransactionCategory(TextChoices):
+class AssetType(TextChoices):
     STOCK = 'stock', 'Stock'
     CRYPTO = 'crypto', 'Crypto'
 

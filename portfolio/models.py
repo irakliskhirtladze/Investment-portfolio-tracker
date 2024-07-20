@@ -1,9 +1,7 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
-from portfolio.choices import TransactionType, CurrencyTransactionType, TransactionCategory
-from portfolio.utils import update_cash_balance, update_portfolio_entry
+from portfolio.choices import TransactionType, CurrencyTransactionType, AssetType
 from accounts.models import CustomUser as User
 
 
@@ -11,11 +9,10 @@ class InvestmentTransaction(models.Model):
     """Stores investment transactions made by user"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('User'))
     transaction_date = models.DateTimeField(verbose_name=_('Transaction Date'))
-    transaction_category = models.CharField(max_length=10,
-                                            choices=TransactionCategory.choices,
+    asset_type = models.CharField(max_length=10,
+                                            choices=AssetType.choices,
                                             verbose_name=_('Transaction Category'))
-    name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_('Name'))
-    symbol = models.CharField(max_length=10, null=True, blank=True, verbose_name=_('Symbol'))
+    symbol = models.CharField(max_length=10, verbose_name=_('Symbol'))
     transaction_type = models.CharField(max_length=10, choices=TransactionType.choices,
                                         verbose_name=_('Transaction Type'))
     quantity = models.DecimalField(max_digits=20, decimal_places=5, validators=[MinValueValidator(0)],
@@ -31,7 +28,7 @@ class InvestmentTransaction(models.Model):
         verbose_name_plural = _('Transactions')
 
     def __str__(self):
-        return f"{self.transaction_category} - {self.name or self.symbol}"
+        return f"{self.asset_type} - {self.symbol}"
 
 
 class CashTransaction(models.Model):
@@ -56,9 +53,9 @@ class CashTransaction(models.Model):
 class PortfolioEntry(models.Model):
     """A single portfolio entry. Fields are automatically calculated based on Transaction"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('User'))
-    investment_type = models.CharField(max_length=10, verbose_name=_('Investment Type'))
-    investment_symbol = models.CharField(max_length=10, default='', verbose_name=_('Investment Symbol'))
-    investment_name = models.CharField(max_length=100, default='', verbose_name=_('Investment Name'))
+    asset_type = models.CharField(max_length=10, verbose_name=_('Investment Type'))
+    asset_symbol = models.CharField(max_length=10, verbose_name=_('Investment Symbol'))
+    asset_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_('Investment Name'))
     quantity = models.DecimalField(max_digits=10, decimal_places=5, verbose_name=_('Investment Quantity'))
 
     average_trade_price = models.DecimalField(max_digits=15, decimal_places=5, default=0, verbose_name=_('Trade Price'))
@@ -74,7 +71,7 @@ class PortfolioEntry(models.Model):
         verbose_name_plural = _('Portfolio Entries')
 
     def __str__(self):
-        return f"{self.investment_type} - {self.investment_symbol or self.investment_name}"
+        return f"{self.asset_type} - {self.asset_symbol}"
 
 
 class CashBalance(models.Model):

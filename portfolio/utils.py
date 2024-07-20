@@ -3,34 +3,45 @@ import os
 from dotenv import load_dotenv
 import requests
 from django.core.exceptions import ValidationError
-from portfolio.choices import TransactionType, CurrencyTransactionType, TransactionCategory
+from portfolio.choices import TransactionType, CurrencyTransactionType, AssetType
 from django.utils.translation import gettext_lazy as _
 
 getcontext().prec = 10
 load_dotenv()
 
 
-def fetch_stock_price(symbol):
+def fetch_stock_details(symbol):
     api_key = os.getenv('FINNHUB_API_KEY')
-    url = f'https://finnhub.io/api/v1/quote?symbol={symbol}&token={api_key}'
+    symbol = symbol.upper()
+    quote_url = f'https://finnhub.io/api/v1/quote?symbol={symbol}&token={api_key}'
+    symbol_url = f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol}&token={api_key}'
 
-    response = requests.get(url)
-    data = response.json()
+    quote_response = requests.get(quote_url)
+    quote_data = quote_response.json()
 
-    if 'c' in data and data['c'] > 0:
-        return Decimal(str(data['c']))
+    if 'c' in quote_data and quote_data['c'] > 0:
+        symbol_response = requests.get(symbol_url)
+        symbol_data = symbol_response.json()
+
+        if 'name' in symbol_data:
+            return {
+                'price': Decimal(str(quote_data['c'])),
+                'name': symbol_data['name']
+            }
+        raise ValidationError({'name': _('Unable to fetch stock name for the given symbol.')})
     raise ValidationError({'current_price': _('Unable to fetch stock price for the given symbol.')})
 
 
-def fetch_crypto_price(crypto_name):
-    url = f'https://api.coingecko.com/api/v3/simple/price?ids={crypto_name}&vs_currencies=usd'
+def fetch_crypto_details(symbol):
+    url = f'https://api.coingecko.com/api/v3/simple/price?ids={symbol.upper()}&vs_currencies=usd'
 
     response = requests.get(url)
     data = response.json()
 
-    if crypto_name in data:
-        return Decimal(str(data[crypto_name]['usd']))
-    raise ValidationError({'current_price': _('Unable to fetch cryptocurrency price for the given name.')})
+    if symbol in data:
+        return {'price': Decimal(str(data[symbol]['usd'])),
+                'name': symbol.capitalize()}
+    raise ValidationError({'current_price': _('Unable to fetch cryptocurrency details for the given symbol.')})
 
 
 def calculate_portfolio_entry_fields(entry, refresh=False):
@@ -38,10 +49,10 @@ def calculate_portfolio_entry_fields(entry, refresh=False):
     Calculates the fields for the given portfolio entry. Used during initial setup or refreshing.
     """
     if refresh or entry.current_price == Decimal('0.00'):
-        if entry.investment_type == TransactionCategory.STOCK:
-            entry.current_price = fetch_stock_price(entry.investment_symbol)
-        elif entry.investment_type == TransactionCategory.CRYPTO:
-            entry.current_price = fetch_crypto_price(entry.investment_name)
+        if entry.asset_type == AssetType.STOCK:
+            entry.current_price = fetch_stock_details(entry.asset_symbol)['price']
+        elif entry.asset_type == AssetType.CRYPTO:
+            entry.current_price = fetch_crypto_details(entry.asset_symbol)['price']
 
     entry.cost_basis = entry.average_trade_price * entry.quantity + entry.commissions
     entry.current_value = entry.current_price * entry.quantity
@@ -55,15 +66,21 @@ def update_portfolio_entry(user, transaction):
     """
     from portfolio.models import PortfolioEntry, CashBalance
 
+    details = None
+    if transaction.asset_type == AssetType.STOCK:
+        details = fetch_stock_details(transaction.symbol)
+    elif transaction.asset_type == AssetType.CRYPTO:
+        details = fetch_crypto_details(transaction.symbol)
+
     portfolio_entry, created = PortfolioEntry.objects.get_or_create(
         user=user,
-        investment_type=transaction.transaction_category,
-        investment_symbol=transaction.symbol if transaction.transaction_category == TransactionCategory.STOCK
-        else transaction.name,
+        asset_type=transaction.asset_type,
+        asset_symbol=transaction.symbol,
         defaults={
-            'investment_name': transaction.name if transaction.transaction_category == TransactionCategory.CRYPTO
-            else transaction.symbol,
-            'quantity': Decimal('0'), 'average_trade_price': Decimal('0')}
+            'asset_name': details['name'],
+            'quantity': Decimal('0'),
+            'average_trade_price': Decimal('0')
+        }
     )
 
     if transaction.transaction_type == TransactionType.BUY:
@@ -110,7 +127,12 @@ def refresh_portfolio(user):
 
     portfolio_entries = PortfolioEntry.objects.filter(user=user)
     for entry in portfolio_entries:
-        entry.current_price = fetch_stock_price(entry.investment_symbol) if \
-            (entry.investment_type == TransactionCategory.STOCK) else fetch_crypto_price(entry.investment_name)
+        if entry.asset_type == AssetType.STOCK:
+            details = fetch_stock_details(entry.asset_symbol)
+        elif entry.asset_type == AssetType.CRYPTO:
+            details = fetch_crypto_details(entry.asset_symbol)
+
+        entry.current_price = details['price']
+        entry.asset_name = details['name']
         calculate_portfolio_entry_fields(entry, refresh=True)
         entry.save()

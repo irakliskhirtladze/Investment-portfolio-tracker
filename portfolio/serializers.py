@@ -2,8 +2,9 @@ from rest_framework import serializers
 
 from django.utils.translation import gettext_lazy as _
 
-from portfolio.choices import TransactionType, TransactionCategory, CurrencyTransactionType
+from portfolio.choices import TransactionType, AssetType, CurrencyTransactionType
 from portfolio.models import InvestmentTransaction, CashTransaction, PortfolioEntry, CashBalance
+from portfolio.utils import fetch_stock_details, fetch_crypto_details
 
 
 class InitialCashBalanceSerializer(serializers.ModelSerializer):
@@ -20,25 +21,28 @@ class InitialCashBalanceSerializer(serializers.ModelSerializer):
 class InitialPortfolioEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = PortfolioEntry
-        fields = ['investment_type', 'investment_symbol', 'investment_name', 'quantity', 'average_trade_price']
+        fields = ['asset_type', 'asset_symbol', 'quantity', 'average_trade_price']
 
     def validate(self, data):
         if data['quantity'] <= 0:
             raise serializers.ValidationError("Quantity must be greater than 0.")
         if data['average_trade_price'] <= 0:
             raise serializers.ValidationError("Average trade price must be greater than 0.")
-        if data['investment_type'] == TransactionCategory.STOCK and not data.get('investment_symbol'):
+        if data['asset_type'] == AssetType.STOCK and not data.get('asset_symbol'):
             raise serializers.ValidationError("Stock symbol is required for stocks.")
-        if data['investment_type'] == TransactionCategory.CRYPTO and not data.get('investment_name'):
-            raise serializers.ValidationError("Crypto name is required for crypto.")
+        if data['asset_type'] == AssetType.CRYPTO and not data.get('asset_symbol'):
+            raise serializers.ValidationError("Crypto symbol is required for crypto.")
 
-        # Convert stock symbol to uppercase
-        if data['investment_type'] == TransactionCategory.STOCK and data.get('investment_symbol'):
-            data['investment_symbol'] = data['investment_symbol'].upper()
+        # Fetch and populate name and price
+        if data['asset_type'] == AssetType.STOCK:
+            data['asset_symbol'] = data['asset_symbol'].upper()
+            details = fetch_stock_details(data['asset_symbol'])
+        elif data['asset_type'] == AssetType.CRYPTO:
+            data['asset_symbol'] = data['asset_symbol'].lower()
+            details = fetch_crypto_details(data['asset_symbol'])
 
-        # Convert crypto name to lowercase
-        if data['investment_type'] == TransactionCategory.CRYPTO and data.get('investment_name'):
-            data['investment_name'] = data['investment_name'].lower()
+        data['asset_name'] = details['name']
+        data['current_price'] = details['price']
 
         return data
 
@@ -52,16 +56,16 @@ class InvestmentTransactionSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
 
         # Ensure correct capitalization
-        if data['transaction_category'] == TransactionCategory.STOCK and data.get('symbol'):
+        if data['asset_type'] == AssetType.STOCK and data.get('symbol'):
             data['symbol'] = data['symbol'].upper()
-        if data['transaction_category'] == TransactionCategory.CRYPTO and data.get('name'):
-            data['name'] = data['name'].lower()
+        if data['asset_type'] == AssetType.CRYPTO and data.get('symbol'):
+            data['symbol'] = data['symbol'].lower()
 
         # Ensure presence of symbol for stocks and name for cryptos
-        if data['transaction_category'] == TransactionCategory.STOCK and not data.get('symbol'):
+        if data['asset_type'] == AssetType.STOCK and not data.get('symbol'):
             raise serializers.ValidationError("Stock symbol is required for stocks.")
-        if data['transaction_category'] == TransactionCategory.CRYPTO and not data.get('name'):
-            raise serializers.ValidationError("Crypto name is required for crypto.")
+        if data['asset_type'] == AssetType.CRYPTO and not data.get('symbol'):
+            raise serializers.ValidationError("Crypto symbol is required for crypto.")
 
         # Validate cash balance for buy transactions
         if data['transaction_type'] == TransactionType.BUY:
@@ -75,9 +79,8 @@ class InvestmentTransactionSerializer(serializers.ModelSerializer):
         if data['transaction_type'] == TransactionType.SELL:
             portfolio_entry = PortfolioEntry.objects.filter(
                 user=user,
-                investment_type=data['transaction_category'],
-                investment_symbol=data['symbol'] if data['transaction_category'] == TransactionCategory.STOCK else
-                data['name']
+                asset_type=data['asset_type'],
+                asset_symbol=data['symbol']
             ).first()
             if not portfolio_entry:
                 raise serializers.ValidationError(
@@ -105,16 +108,23 @@ class CashTransactionSerializer(serializers.ModelSerializer):
         return data
 
 
-class PortfolioEntrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PortfolioEntry
-        fields = '__all__'
-        read_only_fields = ('user', 'investment_type', 'investment_symbol', 'investment_name', 'quantity',
-                            'average_trade_price', 'commissions', 'cost_basis', 'current_price', 'current_value',
-                            'profit_loss', 'profit_loss_percent')
-
-
 class CashBalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = CashBalance
-        fields = '__all__'
+        fields = ['balance']
+
+
+class PortfolioEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PortfolioEntry
+        fields = ['asset_type', 'asset_symbol', 'asset_name', 'quantity', 'average_trade_price', 'commissions',
+                  'cost_basis', 'current_price', 'current_value', 'profit_loss', 'profit_loss_percent']
+
+
+class CombinedPortfolioSerializer(serializers.Serializer):
+    cash_balance = CashBalanceSerializer()
+    portfolio_entries = PortfolioEntrySerializer(many=True)
+
+
+class EmptySerializer(serializers.Serializer):
+    pass

@@ -10,7 +10,8 @@ from rest_framework.views import APIView
 from portfolio import serializers
 from portfolio.models import InvestmentTransaction, CashTransaction, CashBalance, PortfolioEntry
 from portfolio.serializers import InvestmentTransactionSerializer, CashTransactionSerializer, \
-    InitialPortfolioEntrySerializer, InitialCashBalanceSerializer, PortfolioEntrySerializer
+    InitialPortfolioEntrySerializer, InitialCashBalanceSerializer, PortfolioEntrySerializer, \
+    CombinedPortfolioSerializer, CashBalanceSerializer, EmptySerializer
 from portfolio.utils import calculate_portfolio_entry_fields, refresh_portfolio, update_portfolio_entry, \
     update_cash_balance
 
@@ -26,7 +27,21 @@ class PortfolioViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
-    @action(detail=False, methods=['post'], url_path='refresh')
+    def list(self, request, *args, **kwargs):
+        """Returns the cash balance and portfolio entries for the authenticated user."""
+        user = request.user
+        cash_balance = CashBalance.objects.filter(user=user).first()
+        portfolio_entries = self.get_queryset()
+
+        combined_data = {
+            'cash_balance': CashBalanceSerializer(cash_balance).data if cash_balance else None,
+            'portfolio_entries': PortfolioEntrySerializer(portfolio_entries, many=True).data
+        }
+
+        serializer = CombinedPortfolioSerializer(combined_data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='refresh', serializer_class=EmptySerializer)
     def refresh_portfolio(self, request):
         """
         Refreshes the portfolio entries by updating the current prices and recalculating dependent fields.
@@ -70,8 +85,8 @@ class InitialSetupView(APIView):
                     try:
                         portfolio_entry, created = PortfolioEntry.objects.update_or_create(
                             user=user,
-                            investment_type=entry_serializer.validated_data['investment_type'],
-                            investment_symbol=entry_serializer.validated_data['investment_symbol'],
+                            asset_type=entry_serializer.validated_data['asset_type'],
+                            asset_symbol=entry_serializer.validated_data['asset_symbol'],
                             defaults=entry_serializer.validated_data
                         )
                         calculate_portfolio_entry_fields(portfolio_entry)
