@@ -52,7 +52,8 @@ of transactions.
 - Or alternatively you can perform initial setup, which will directly insert portfolio data.
 This can be done on [/api/initial-setup/]() endpoint. You can use the below example data for initial setup:
 
-`{    
+`
+{    
     "cash_balance": {
         "balance": 10000
     },
