@@ -57,7 +57,6 @@ This can be done on [/api/initial-setup/]() endpoint. You can use the below exam
     "cash_balance": {
         "balance": 10000
     },
-
     "portfolio_entries": [
         {
             "asset_type": "stock",
