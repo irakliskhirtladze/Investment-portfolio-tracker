@@ -1,26 +1,24 @@
-// src/components/Activate.js
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import { activateUser } from '../services/api';
 
 const Activate = () => {
   const { uid, token } = useParams();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const activateAccount = async () => {
+    const activate = async () => {
       try {
-        await axios.post(`http://127.0.0.1:8000/auth/users/activation/`, { uid, token });
-        navigate('/login');
+        await activateUser(uid, token);
+        alert('Your account has been activated. You can now log in.');
       } catch (error) {
-        console.error('Activation error:', error);
+        alert('Activation failed. Please try again or contact support.');
       }
     };
 
-    activateAccount();
-  }, [uid, token, navigate]);
+    activate();
+  }, [uid, token]);
 
-  return <div>Activating your account...</div>;
+  return <div>Activating...</div>;
 };
 
 export default Activate;

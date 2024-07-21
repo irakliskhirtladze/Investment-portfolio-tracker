@@ -9,4 +9,4 @@ backend/.env
 backend/currencies.pkl
 backend/temp.py
 backend/staticfiles
-
+backend/path/

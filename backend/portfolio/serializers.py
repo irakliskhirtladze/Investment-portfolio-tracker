@@ -122,6 +122,7 @@ class PortfolioEntrySerializer(serializers.ModelSerializer):
 
 
 class CombinedPortfolioSerializer(serializers.Serializer):
+    total_portfolio_value = serializers.DecimalField(max_digits=20, decimal_places=2)
     cash_balance = CashBalanceSerializer()
     portfolio_entries = PortfolioEntrySerializer(many=True)
 

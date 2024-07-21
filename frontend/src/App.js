@@ -1,33 +1,31 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './components/Home';
+import { AuthProvider } from './context/AuthContext';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Login from './components/Login';
 import Register from './components/Register';
 import Activate from './components/Activate';
-import Login from './components/Login';
-import Navbar from './components/Navbar';
-import ProtectedRoute from './components/ProtectedRoute';
+import Home from './components/Home';
+import Transaction from './components/Transaction';
+import InitialSetup from './components/InitialSetup';
 
 const App = () => {
   return (
-    <Router>
-      <div>
-        <Navbar />
+    <AuthProvider>
+      <Router>
+        <Header />
         <Routes>
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/activate/:uid/:token" element={<Activate />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/transaction" element={<Transaction />} />
+          <Route path="/initial-setup" element={<InitialSetup />} />
+          <Route path="/" element={<Home />} />
         </Routes>
-      </div>
-    </Router>
+        <Footer />
+      </Router>
+    </AuthProvider>
   );
 };
 

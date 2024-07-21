@@ -1,17 +1,16 @@
 from decimal import Decimal, ROUND_HALF_UP, getcontext
 import os
-from dotenv import load_dotenv
+from django.conf import settings
 import requests
 from django.core.exceptions import ValidationError
 from portfolio.choices import TransactionType, CurrencyTransactionType, AssetType
 from django.utils.translation import gettext_lazy as _
 
 getcontext().prec = 10
-load_dotenv()
 
 
 def fetch_stock_details(symbol):
-    api_key = os.getenv('FINNHUB_API_KEY')
+    api_key = settings.FINNHUB_API_KEY
     symbol = symbol.upper()
     quote_url = f'https://finnhub.io/api/v1/quote?symbol={symbol}&token={api_key}'
     symbol_url = f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol}&token={api_key}'

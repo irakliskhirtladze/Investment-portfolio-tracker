@@ -26,6 +26,11 @@ Backend has 2 apps:
     pip install -r requirements.txt
     ```
 
+4. Create a .env file in the backend directory (where manage.py is located) and add the FINNHUB_API_KEY along with any other necessary environment variables:
+    ```sh
+    FINNHUB_API_KEY=replace_this_with_your_actual_finnhub_api_key
+    ```
+
 4. Apply migrations:
     ```sh
     python manage.py migrate
@@ -38,7 +43,6 @@ Backend has 2 apps:
 
 
 
-
 # API usage
 - A user must authenticate to use the api.
 
@@ -48,31 +52,33 @@ of transactions.
 - Or alternatively you can perform initial setup, which will directly insert portfolio data.
 This can be done on [/api/initial-setup/]() endpoint. You can use the below example data for initial setup:
 
-`{
+`{    
+    "cash_balance": {
+        "balance": 10000
+    },
+
     "portfolio_entries": [
         {
-            "investment_type": "stock",
-            "investment_symbol": "MSN",
-            "quantity": 11.05555,
+            "asset_type": "stock",
+            "asset_symbol": "MSN",
+            "quantity": 110.05555,
             "average_trade_price": 0.54
         },
         {
-            "investment_type": "crypto",
-            "investment_symbol": "bItcoin",
+            "asset_type": "crypto",
+            "asset_symbol": "bItcoin",
             "quantity": 10,
             "average_trade_price": 150.00
         },
         {
-            "investment_type": "crypto",
-            "investment_symbol": "ziLLiqa",
+            "asset_type": "crypto",
+            "asset_symbol": "ziLLiqa",
             "quantity": 5000,
             "average_trade_price": 0.0228
         }
-    ],
-    "cash_balance": {
-        "balance": 0
-    }
-}`
+    ]
+}
+`
 
 Feel free to play with the data if you wish.
 

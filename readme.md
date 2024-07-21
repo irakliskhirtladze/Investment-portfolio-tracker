@@ -29,7 +29,7 @@ This is an API backend built with Django REST Framework.
 2. **frontend** 
 
 This is in progress REACT frontend directory. Since I specialize in backend development,
-frontend part is very primitive at the moment.
+frontend part is very primitive at the moment and may not function as intended.
 
 
 

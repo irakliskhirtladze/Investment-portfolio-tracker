@@ -43,8 +43,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/', include('portfolio.urls')),
-    path('auth/', include('accounts.urls')),
 
+    path('auth/', include('accounts.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/jwt/create/', TokenObtainPairView.as_view(), name='jwt-create'),
     path('auth/jwt/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
