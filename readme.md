@@ -1,4 +1,4 @@
-- **The API part is 99% ready functionality-wise, with some changes added periodically.**
+- **The API part (backend) is 99% ready functionality-wise, with some changes added periodically.**
 - **Please consider becoming a contributor for frontend development with react framework (or other frameworks)**
 - **Please don't hesitate to let me know any issues.**
 
@@ -20,68 +20,17 @@ Prices will be fetched automatically from 3rd party APIs.
 - Every subsequent transaction will be needed only for reflecting actual deposit/withdrawal in investment platforms.
 
 # Project structure
-Currently, the project has 3 apps:
+The project has 2 parts: 
 
-- _**accounts**_: This is backend for user registration, authentication, etc.
-- _**portfolio**_: Also backend for portfolio tracking and transactions.
-- _**web**_: Frontend achieved by django template rendering; sends requests to backend and renders templates from obtained
-responses.
+1. **backend** 
 
-Backend is being built with Django and Django REST Framework.
+This is an API backend built with Django REST Framework.
 
-# Setup
-- Clone the repo in your local machine. Create virtual environment, activate it and run in terminal:
-```
-pip install -r requirements.txt
-```
-- Migrate 
-```
-python manage.py migrate
-```
+2. **frontend** 
 
-- Run server with:
-```
-python manage.py runserver
-```
+This is in progress REACT frontend directory. Since I specialize in backend development,
+frontend part is very primitive at the moment.
 
-# API usage
-- A user must authenticate to use the api.
 
-- After login, it is possible to start using the API by making cash deposit transaction first and then follow with other types 
-of transactions.
 
-- Or alternatively you can perform initial setup, which will directly insert portfolio data.
-This can be done on [/api/initial-setup/]() endpoint. You can use the below example data for initial setup:
-
-`{
-    "portfolio_entries": [
-        {
-            "investment_type": "stock",
-            "investment_symbol": "MSN",
-            "quantity": 11.05555,
-            "average_trade_price": 0.54
-        },
-        {
-            "investment_type": "crypto",
-            "investment_symbol": "bItcoin",
-            "quantity": 10,
-            "average_trade_price": 150.00
-        },
-        {
-            "investment_type": "crypto",
-            "investment_symbol": "ziLLiqa",
-            "quantity": 5000,
-            "average_trade_price": 0.0228
-        }
-    ],
-    "cash_balance": {
-        "balance": 0
-    }
-}`
-
-Feel free to play with the data if you wish.
-
-After this you can make other transactions as needed.
-
-# Documentation
-I have added Swagger for documenting the API endpoints. Please refer to it for more details.
+### Backend and Frontend directories contain their own readme files for setup instructions and more details.
