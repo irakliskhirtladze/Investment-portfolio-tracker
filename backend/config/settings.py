@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     # Local
     'accounts',
     'portfolio',
-    'web'
 ]
 
 MIDDLEWARE = [
@@ -62,7 +61,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'web.middleware.JWTAuthenticationMiddleware',  # New
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -132,10 +130,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-# New
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -183,3 +177,8 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 SITE_ID = 1
 
 API_BASE_URL = 'http://127.0.0.1:8000'
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Frontend URL
+]
