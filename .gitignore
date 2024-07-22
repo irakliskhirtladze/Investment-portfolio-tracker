@@ -1,12 +1,12 @@
 .venv
 .idea
+.env
 
-backend/__pycache__/
-backend/.idea/
-backend/db.sqlite3
-backend/db.sqlite3-journal
-backend/.env
-backend/currencies.pkl
-backend/temp.py
-backend/staticfiles
-backend/path/
+__pycache__/
+.idea/
+db.sqlite3
+db.sqlite3-journal
+currencies.pkl
+temp.py
+staticfiles
+path/
