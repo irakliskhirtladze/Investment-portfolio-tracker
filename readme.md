@@ -43,15 +43,19 @@ This Django backend has 2 apps:
     SITE_NAME=Investment Portfolio Tracker
     ```
 
-3. **Build and run the Docker containers**:
+3. **Build and run the Docker containers (initial setup or when dependancies have changed)**:
     ```sh
     docker-compose up --build
     ```
 
-4. **Run migrations**:
+4. **To just run the Docker containers (subsequent runs without building image)**:
     ```sh
-    docker-compose exec web python manage.py migrate
+    docker-compose up
     ```
+
+5. **Access the application**:
+    Open your web browser and navigate to [http://localhost:8000](http://localhost:8000).
+    
 
 ### Without Docker 
 
