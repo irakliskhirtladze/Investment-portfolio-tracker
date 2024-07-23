@@ -32,11 +32,11 @@ This Django backend has 2 apps:
 
 2. **Create a `.env` file** in the project root and add your environment variables (replace variables with actual values):
     ```env
-    FINNHUB_API_KEY=replace_this_with_your_actual_finnhub_api_key
-    SECRET_KEY=your_secret_key
+    FINNHUB_API_KEY=replace_with_your_finnhub_api_key
+    SECRET_KEY=replace_with_your_secret_key
     DB_NAME=portfolio_tracker
-    DB_USER=your_db_user
-    DB_PASSWORD=your_db_password
+    DB_USER=replace_with_your_db_user
+    DB_PASSWORD=replace_with_your_db_password
     DB_HOST=db
     DB_PORT=5432
     SITE_DOMAIN=localhost:8000

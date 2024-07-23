@@ -14,6 +14,3 @@ RUN pip install -r requirements.txt
 
 # Copy the Django project
 COPY . /code/
-
-# Run the site domain setting command after migrations
-CMD ["sh", "-c", "python manage.py migrate && python manage.py set_site_domain && python manage.py runserver 0.0.0.0:8000"]
