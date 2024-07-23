@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     # Local
     'accounts',
     'portfolio',
+    'stats',
 ]
 
 MIDDLEWARE = [

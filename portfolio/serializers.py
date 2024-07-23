@@ -7,7 +7,7 @@ from portfolio.models import InvestmentTransaction, CashTransaction, PortfolioEn
 from portfolio.utils import fetch_stock_details, fetch_crypto_details
 
 
-class InitialCashBalanceSerializer(serializers.ModelSerializer):
+class CashBalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = CashBalance
         fields = ['balance']
@@ -106,12 +106,6 @@ class CashTransactionSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {'cash_balance': _('Insufficient cash balance for this transaction.')})
         return data
-
-
-class CashBalanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CashBalance
-        fields = ['balance']
 
 
 class PortfolioEntrySerializer(serializers.ModelSerializer):

@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.core.exceptions import ValidationError as DjangoValidationError, ValidationError
+from django.core.exceptions import ValidationError
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets, permissions, status
@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from portfolio import serializers
 from portfolio.models import InvestmentTransaction, CashTransaction, CashBalance, PortfolioEntry
 from portfolio.serializers import InvestmentTransactionSerializer, CashTransactionSerializer, \
-    InitialPortfolioEntrySerializer, InitialCashBalanceSerializer, PortfolioEntrySerializer, \
+    InitialPortfolioEntrySerializer, CashBalanceSerializer, PortfolioEntrySerializer, \
     CombinedPortfolioSerializer, CashBalanceSerializer, EmptySerializer
 from portfolio.utils import calculate_portfolio_entry_fields, refresh_portfolio, update_portfolio_entry, \
     update_cash_balance
@@ -79,7 +79,7 @@ class InitialSetupView(APIView):
         cash_data = request.data.get('cash_balance')
         if cash_data:
             cash_data['user'] = user.id
-        cash_serializer = InitialCashBalanceSerializer(data=cash_data)
+        cash_serializer = CashBalanceSerializer(data=cash_data)
         if cash_serializer.is_valid():
             CashBalance.objects.update_or_create(user=user, defaults=cash_serializer.validated_data)
         else:
@@ -161,3 +161,19 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class CashBalanceAdjustmentView(APIView):
+    """
+    Allows users to adjust the cash balance manually.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        cash_data = request.data
+        cash_data['user'] = user.id
+        cash_serializer = CashBalanceSerializer(data=cash_data)
+        if cash_serializer.is_valid():
+            CashBalance.objects.update_or_create(user=user, defaults=cash_serializer.validated_data)
+        else:
+            return Response(cash_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
