@@ -14,25 +14,55 @@ You would probably need to create a spreadsheet, add investments there and chang
 - All will be done by setting initial investment amounts via making virtual transaction.
 Every subsequent transaction will be needed only for reflecting actual deposit/withdrawal in investment platforms.
 
-
-# Setup
-
 ## Structure
 This Django backend has 2 apps:
 - _**accounts**_: This is backend for user registration, authentication, etc.
 - _**portfolio**_: Also backend for portfolio tracking and transactions.
 
 
-## Installation
+# Setup
+
+### With Docker (Recommended)
+
+1. **Clone the repository**:
+    ```sh
+    git clone https://github.com/irakliskhirtladze/Investment-portfolio-tracker.git
+    cd Investment-portfolio-tracker
+    ```
+
+2. **Create a `.env` file** in the project root and add your environment variables (replace variables with actual values):
+    ```env
+    FINNHUB_API_KEY=replace_this_with_your_actual_finnhub_api_key
+    SECRET_KEY=your_secret_key
+    DB_NAME=portfolio_tracker
+    DB_USER=your_db_user
+    DB_PASSWORD=your_db_password
+    DB_HOST=db
+    DB_PORT=5432
+    SITE_DOMAIN=localhost:8000
+    SITE_NAME=Investment Portfolio Tracker
+    ```
+
+3. **Build and run the Docker containers**:
+    ```sh
+    docker-compose up --build
+    ```
+
+4. **Run migrations**:
+    ```sh
+    docker-compose exec web python manage.py migrate
+    ```
+
+### Without Docker 
 
 1. Clone the repository:
    ```sh
    git clone https://github.com/irakliskhirtladze/Investment-portfolio-tracker.git
+   cd Investment-portfolio-tracker
    ```
 
-2. Go to backend directory, create virtual env and activate it:
+2. Create virtual environment and activate it:
     ```sh
-    cd backend
     python -m venv .venv
     source env/bin/activate  # On Linux
     .venv\Scripts\activate   # On Windows
@@ -43,23 +73,43 @@ This Django backend has 2 apps:
     pip install -r requirements.txt
     ```
 
-4. Create a .env file in the backend directory (where manage.py is located) and add the FINNHUB_API_KEY along with any other necessary environment variables:
+4. Set up PostgreSQL:
+    - Install PostgreSQL if you haven't already.
+    - Create a database and a user:
+      ```sql
+      CREATE DATABASE portfolio_tracker;
+      CREATE USER your_db_user WITH PASSWORD 'your_db_password';
+      ALTER ROLE your_db_user SET client_encoding TO 'utf8';
+      ALTER ROLE your_db_user SET default_transaction_isolation TO 'read committed';
+      ALTER ROLE your_db_user SET timezone TO 'UTC';
+      GRANT ALL PRIVILEGES ON DATABASE portfolio_tracker TO your_db_user;
+      ```
+
+5. Create a .env file in the backend directory (where manage.py is located) and add the FINNHUB_API_KEY along with any other necessary environment variables:
     ```sh
     FINNHUB_API_KEY=replace_this_with_your_actual_finnhub_api_key
+    SECRET_KEY=your_secret_key
+    DB_NAME=portfolio_tracker
+    DB_USER=your_db_user
+    DB_PASSWORD=your_db_password
+    DB_HOST=localhost
+    DB_PORT=5432
+    SITE_DOMAIN=localhost:8000
+    SITE_NAME=Investment Portfolio Tracker
     ```
 
-4. Apply migrations:
+6. Apply migrations:
     ```sh
     python manage.py migrate
     ```
 
-5. Set the site domain:
+7. Set the site domain:
 
    ```sh
    python manage.py set_site_domain
    ```
 
-6. Run the development server:
+8. Run the development server:
     ```sh
     python manage.py runserver
     ```
