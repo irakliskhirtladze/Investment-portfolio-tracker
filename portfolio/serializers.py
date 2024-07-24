@@ -8,11 +8,13 @@ from portfolio.utils import fetch_stock_details, fetch_crypto_details
 
 
 class CashBalanceSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = CashBalance
         fields = ['balance']
 
     def validate(self, data):
+        print("Debug - Balance value:", data['balance'])  # Add this line for debugging
         if data['balance'] < 0:
             raise serializers.ValidationError("Cash balance cannot be a negative value.")
         return data

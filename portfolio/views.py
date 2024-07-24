@@ -1,7 +1,7 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.core.exceptions import ValidationError
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
@@ -162,18 +162,18 @@ class TransactionViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CashBalanceAdjustmentView(APIView):
+class BalanceUpdateView(APIView):
     """
-    Allows users to adjust the cash balance manually.
+    Allows users to update the cash balance by posting a single number.
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        user = request.user
-        cash_data = request.data
-        cash_data['user'] = user.id
-        cash_serializer = CashBalanceSerializer(data=cash_data)
-        if cash_serializer.is_valid():
-            CashBalance.objects.update_or_create(user=user, defaults=cash_serializer.validated_data)
-        else:
-            return Response(cash_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CashBalanceSerializer(data=request.data)
+        if serializer.is_valid():
+            balance = serializer.validated_data['balance']
+            CashBalance.objects.update_or_create(
+                user=request.user, defaults={'balance': balance}
+            )
+            return Response({"detail": "Cash balance updated successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
