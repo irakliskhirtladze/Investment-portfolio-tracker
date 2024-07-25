@@ -12,9 +12,17 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta  # Needed for SimpleJWT
-from decouple import config
+from decouple import config, Csv
 
 FINNHUB_API_KEY = config('FINNHUB_API_KEY')
+
+# Celery settings
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
+CELERY_ACCEPT_CONTENT = config('CELERY_ACCEPT_CONTENT', cast=Csv())
+CELERY_TASK_SERIALIZER = config('CELERY_TASK_SERIALIZER')
+CELERY_RESULT_SERIALIZER = config('CELERY_RESULT_SERIALIZER')
+CELERY_TIMEZONE = config('CELERY_TIMEZONE')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
