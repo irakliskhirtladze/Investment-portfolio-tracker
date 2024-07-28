@@ -1,8 +1,21 @@
-from celery.schedules import crontab
+# config/celery.py
 
-app.conf.beat_schedule = {
-    'fetch-and-store-portfolio-value-daily': {
-        'task': 'stats.tasks.fetch_and_store_portfolio_value',
-        'schedule': crontab(hour=0, minute=0),  # Runs daily at midnight
-    },
-}
+from __future__ import absolute_import, unicode_literals
+import os
+from celery import Celery
+
+# Set the default Django settings module for the 'celery' program.
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+
+app = Celery('config')
+
+# Using a string here means the worker doesn't have to serialize
+# the configuration object to child processes.
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# Load task modules from all registered Django app configs.
+app.autodiscover_tasks()
+
+@app.task(bind=True)
+def debug_task(self):
+    print(f'Request: {self.request!r}')
