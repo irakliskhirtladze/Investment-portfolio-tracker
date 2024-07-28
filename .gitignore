@@ -10,3 +10,4 @@ currencies.pkl
 temp.py
 staticfiles
 path/
+celerybeat-schedule
