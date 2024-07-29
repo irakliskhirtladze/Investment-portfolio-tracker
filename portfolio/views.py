@@ -1,5 +1,3 @@
-from decimal import Decimal, ROUND_HALF_UP
-
 from django.core.exceptions import ValidationError
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -7,7 +5,6 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from portfolio import serializers
 from portfolio.models import InvestmentTransaction, CashTransaction, CashBalance, PortfolioEntry
 from portfolio.serializers import InvestmentTransactionSerializer, CashTransactionSerializer, \
     InitialPortfolioEntrySerializer, CashBalanceSerializer, PortfolioEntrySerializer, \
@@ -26,7 +23,7 @@ class PortfolioViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
-    
+
     def total_portfolio_value(self, user):
         """Returns the total value of the portfolio. Cash balance + current values of portfolio entries"""
         cash_balance = CashBalance.objects.filter(user=self.request.user).first()

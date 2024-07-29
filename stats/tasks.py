@@ -1,32 +1,52 @@
-from celery import shared_task
 from django.utils import timezone
+
+from celery import shared_task
 from portfolio.models import PortfolioEntry, CashBalance
 from stats.models import PortfolioValue
+from django.contrib.auth import get_user_model
+from portfolio.utils import fetch_stock_details, fetch_crypto_details
 
+
+User = get_user_model()
 
 @shared_task
-def fetch_and_store_portfolio_value():
-    from accounts.models import CustomUser  # Import here to avoid circular import issues
-
-    users = CustomUser.objects.all()
-    for user in users:
-        portfolio_entries = PortfolioEntry.objects.filter(user=user)
+def fetch_and_store_portfolio_values():
+    """
+    Fetches the current portfolio values for all users and stores them in the PortfolioValue model.
+    """
+    for user in User.objects.all():
+        # Calculate total portfolio value
+        total_value = 0
         cash_balance = CashBalance.objects.filter(user=user).first()
-
         if cash_balance:
-            cash_balance_value = cash_balance.balance
-        else:
-            cash_balance_value = 0
+            total_value += cash_balance.balance
 
-        investments_value = sum(entry.current_value for entry in portfolio_entries)
-        total_value = cash_balance_value + investments_value
+        investments_value = 0
+        portfolio_entries = PortfolioEntry.objects.filter(user=user)
+        for entry in portfolio_entries:
+            if entry.asset_type == 'stock':
+                stock_details = fetch_stock_details(entry.asset_symbol)
+                entry.current_price = stock_details['price']
+                entry.current_value = entry.current_price * entry.quantity
+            elif entry.asset_type == 'crypto':
+                crypto_details = fetch_crypto_details(entry.asset_symbol)
+                entry.current_price = crypto_details['price']
+                entry.current_value = entry.current_price * entry.quantity
 
-        PortfolioValue.objects.update_or_create(
+            investments_value += entry.current_value
+
+        total_value += investments_value
+
+        # Store the portfolio value
+        today = timezone.now().date()
+        portfolio_value, created = PortfolioValue.objects.update_or_create(
             user=user,
-            date=timezone.now().date(),
+            timestamp__date=today,  # Ensure only one record per day
             defaults={
                 'total_value': total_value,
-                'cash_balance': cash_balance_value,
-                'investments_value': investments_value
+                'cash_balance': cash_balance.balance if cash_balance else 0,
+                'investments_value': investments_value,
+                'timestamp': timezone.now(),
             }
         )
+

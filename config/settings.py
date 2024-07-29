@@ -13,16 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta  # Needed for SimpleJWT
 from decouple import config, Csv
+from celery.schedules import crontab
 
 FINNHUB_API_KEY = config('FINNHUB_API_KEY')
-
-# Celery settings
-CELERY_BROKER_URL = config('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
-CELERY_ACCEPT_CONTENT = config('CELERY_ACCEPT_CONTENT', cast=Csv())
-CELERY_TASK_SERIALIZER = config('CELERY_TASK_SERIALIZER')
-CELERY_RESULT_SERIALIZER = config('CELERY_RESULT_SERIALIZER')
-CELERY_TIMEZONE = config('CELERY_TIMEZONE')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -188,7 +181,7 @@ SIMPLE_JWT = {
 DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SEND_ACTIVATION_EMAIL': True,
-    'ACTIVATION_URL': 'auth/activate/{uid}/{token}/',
+    'ACTIVATION_URL': 'api/auth/activate/{uid}/{token}/',
     'SERIALIZERS': {
         'user_create': 'accounts.serializers.CustomUserCreateSerializer',
         'user': 'accounts.serializers.CustomUserSerializer',
@@ -207,3 +200,18 @@ API_BASE_URL = 'http://127.0.0.1:8000'
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # Frontend URL
 ]
+
+# Celery settings
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+CELERY_BEAT_SCHEDULE = {
+    'fetch-and-store-portfolio-values-every-night': {
+        'task': 'stats.tasks.fetch_and_store_portfolio_values',
+        'schedule': crontab(hour=23, minute=59),
+    },
+}

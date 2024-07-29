@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.conf import settings
+
 
 class ActivateUser(APIView):
     """
@@ -13,7 +15,7 @@ class ActivateUser(APIView):
 
     def get(self, request, uid, token, format=None):
         payload = {'uid': uid, 'token': token}
-        url = f"{request.scheme}://{request.get_host()}/auth/users/activation/"
+        url = f"{settings.API_BASE_URL}/api/auth/users/activation/"
         response = requests.post(url, data=payload)
 
         if response.status_code == 204:

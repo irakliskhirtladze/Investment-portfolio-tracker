@@ -4,7 +4,7 @@ from stats.models import PortfolioValue
 class PortfolioValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = PortfolioValue
-        fields = ['date', 'total_value', 'cash_balance', 'investments_value']
+        fields = '__all__'
 
 
 class PortfolioStatsSerializer(serializers.Serializer):

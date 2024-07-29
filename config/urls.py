@@ -43,12 +43,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/', include('portfolio.urls')),
+    path('api/', include('stats.urls')),
+    path('api/auth/', include('accounts.urls')),  # This includes only custom activation view
 
-    path('auth/', include('accounts.urls')),
-    path('auth/', include('djoser.urls')),
-    path('auth/jwt/create/', TokenObtainPairView.as_view(), name='jwt-create'),
-    path('auth/jwt/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
-    path('auth/jwt/blacklist/', TokenBlacklistView.as_view(), name='jwt-blacklist'),
+    path('api/auth/', include('djoser.urls')),
+    path('api/auth/jwt/create/', TokenObtainPairView.as_view(), name='jwt-create'),
+    path('api/auth/jwt/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
+    path('api/auth/jwt/blacklist/', TokenBlacklistView.as_view(), name='jwt-blacklist'),
 
     # Swagger and ReDoc URLs
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
