@@ -55,4 +55,3 @@ class PortfolioValueViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             return Response({"detail": "Please provide both start_date and end_date."}, status=400)
 
-

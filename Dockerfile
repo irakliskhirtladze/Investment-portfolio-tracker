@@ -14,3 +14,6 @@ RUN pip install -r requirements.txt
 
 # Copy the Django project
 COPY . /code/
+
+# Use the environment variable to select the correct settings file
+ENV DJANGO_SETTINGS_MODULE=config.settings.$ENVIRONMENT
