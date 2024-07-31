@@ -16,4 +16,7 @@ RUN pip install -r requirements.txt
 COPY . /code/
 
 # Use the environment variable to select the correct settings file
-ENV DJANGO_SETTINGS_MODULE=config.settings.$ENVIRONMENT
+ARG ENVIRONMENT
+ENV DJANGO_SETTINGS_MODULE=config.settings.${ENVIRONMENT}
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project.wsgi:application"]
