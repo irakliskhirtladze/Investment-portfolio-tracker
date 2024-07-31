@@ -135,13 +135,6 @@ DJOSER = {
 
 SITE_ID = 1
 
-
-API_BASE_URL = config('API_BASE_URL')
-
-# CORS settings
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv())
-
-
 CELERY_BEAT_SCHEDULE = {
     'fetch-and-store-portfolio-values-every-night': {
         'task': 'stats.tasks.fetch_and_store_portfolio_values',
