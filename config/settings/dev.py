@@ -1,5 +1,4 @@
-# config/settings/dev.py
-from .base import *
+from config.settings.base import *
 from decouple import config, Csv
 
 DEBUG = True
@@ -15,7 +14,7 @@ SITE_NAME= "Portfolio Tracker"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-API_BASE_URL = 'http://127.0.0.1:8000'
+API_BASE_URL = 'http://127.0.0.1:8000/api'
 
 DATABASES = {
     'default': {
@@ -37,5 +36,3 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
-
-

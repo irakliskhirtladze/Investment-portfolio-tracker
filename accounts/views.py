@@ -15,7 +15,7 @@ class ActivateUser(APIView):
 
     def get(self, request, uid, token, format=None):
         payload = {'uid': uid, 'token': token}
-        url = f"{settings.API_BASE_URL}/api/auth/users/activation/"
+        url = f"{settings.API_BASE_URL}/auth/users/activation/"
         response = requests.post(url, data=payload)
 
         if response.status_code == 204:

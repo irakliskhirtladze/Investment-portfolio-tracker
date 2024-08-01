@@ -8,10 +8,9 @@ https://docs.djangoproject.com/en/5.0/howto/deployment/wsgi/
 """
 
 import os
-
+from decouple import config
 from django.core.wsgi import get_wsgi_application
 
-environment = os.getenv('ENVIRONMENT', 'dev')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', f'config.settings.{environment}')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', config('DJANGO_SETTINGS_MODULE', default='config.settings.dev'))
 
 application = get_wsgi_application()

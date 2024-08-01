@@ -12,3 +12,5 @@ temp.py
 staticfiles
 path/
 celerybeat-schedule
+
+devcontainer/

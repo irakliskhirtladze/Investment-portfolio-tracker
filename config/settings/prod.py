@@ -1,10 +1,13 @@
-# SETTINGS FILE EXTENDED FOR PRODUCTION
 from config.settings.base import *
 from decouple import config, Csv
 
 DEBUG = False
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv()).split(',')
+
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv()).split(',')
+
+FINNHUB_API_KEY = config('FINNHUB_API_KEY')
 
 SECRET_KEY = config('SECRET_KEY')
 
@@ -41,3 +44,9 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# AWS settings
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
