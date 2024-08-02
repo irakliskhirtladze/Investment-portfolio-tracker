@@ -23,6 +23,6 @@ COPY . /code/
 ARG ENVIRONMENT
 ENV DJANGO_SETTINGS_MODULE=config.settings.${ENVIRONMENT}
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
 
 

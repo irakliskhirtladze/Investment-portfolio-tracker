@@ -1,22 +1,17 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "5432:5432"
-
   redis:
-    image: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
 
   web:
     build:
       context: .
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000  --timeout=5 --threads=10
+      args:
+        ENVIRONMENT: prod
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000  --timeout=30 --threads=10
     volumes:
       - .:/code
     env_file:
@@ -25,13 +20,14 @@ services:
       - DJANGO_ENV=production
       - DJANGO_SETTINGS_MODULE=config.settings.prod
     depends_on:
-      - db
       - redis
 
   celery:
     build:
       context: .
-    command: celery -A project worker --loglevel=info
+      args:
+        ENVIRONMENT: prod
+    command: celery -A config worker --loglevel=info
     volumes:
       - .:/code
     env_file:
@@ -40,13 +36,14 @@ services:
       - DJANGO_ENV=production
       - DJANGO_SETTINGS_MODULE=config.settings.prod
     depends_on:
-      - db
       - redis
 
   celery-beat:
     build:
       context: .
-    command: celery -A project beat --loglevel=info
+      args:
+        ENVIRONMENT: prod
+    command: celery -A config beat --loglevel=info
     volumes:
       - .:/code
     env_file:
@@ -55,7 +52,6 @@ services:
       - DJANGO_ENV=production
       - DJANGO_SETTINGS_MODULE=config.settings.prod
     depends_on:
-      - db
       - redis
 
   nginx:
