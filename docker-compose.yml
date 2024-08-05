@@ -55,13 +55,5 @@ services:
       - db
       - redis
 
-  nginx:
-    build:
-      context: ./nginx
-    ports:
-      - "80:80"
-    depends_on:
-      - web
-
 volumes:
   postgres_data:
