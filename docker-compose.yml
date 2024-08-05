@@ -4,9 +4,9 @@ services:
   db:
     image: postgres:13
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: portfolio_tracker
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpass
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
@@ -25,10 +25,7 @@ services:
       - .:/code
     ports:
       - "8000:8000"
-    env_file:
-      - .env.dev
     environment:
-      - DJANGO_ENV=development
       - DJANGO_SETTINGS_MODULE=config.settings.dev
     depends_on:
       - db
@@ -40,10 +37,7 @@ services:
     command: celery -A config worker --loglevel=info
     volumes:
       - .:/code
-    env_file:
-      - .env.dev
     environment:
-      - DJANGO_ENV=development
       - DJANGO_SETTINGS_MODULE=config.settings.dev
     depends_on:
       - db
@@ -55,10 +49,7 @@ services:
     command: celery -A config beat --loglevel=info
     volumes:
       - .:/code
-    env_file:
-      - .env.dev
     environment:
-      - DJANGO_ENV=development
       - DJANGO_SETTINGS_MODULE=config.settings.dev
     depends_on:
       - db

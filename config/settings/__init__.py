@@ -1,9 +1,6 @@
-import os
-from decouple import config
+# import os
 
-ENVIRONMENT = config('ENVIRONMENT', default='dev')
+# # Choose the settings file based on the DJANGO_SETTINGS_MODULE environment variable
+# settings_module = os.getenv('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# exec(f"from {settings_module} import *")
 
-if ENVIRONMENT == 'prod':
-    from .prod import *
-elif ENVIRONMENT == 'dev':
-    from .dev import *

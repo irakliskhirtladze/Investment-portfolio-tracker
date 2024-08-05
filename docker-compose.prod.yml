@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: sh -c "python manage.py migrate && python manage.py set_site_domain"
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+    depends_on:
+      - db
+    restart: "no"
+
   redis:
     image: redis:latest
     ports:
@@ -9,15 +24,15 @@ services:
   web:
     build:
       context: .
+      dockerfile: Dockerfile.prod
       args:
         ENVIRONMENT: prod
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000  --timeout=30 --threads=10
     volumes:
       - .:/code
     env_file:
-      - .env.prod
+      - .env
     environment:
-      - DJANGO_ENV=production
       - DJANGO_SETTINGS_MODULE=config.settings.prod
     depends_on:
       - redis
@@ -25,15 +40,15 @@ services:
   celery:
     build:
       context: .
+      dockerfile: Dockerfile.prod
       args:
         ENVIRONMENT: prod
     command: celery -A config worker --loglevel=info
     volumes:
       - .:/code
     env_file:
-      - .env.prod
+      - .env
     environment:
-      - DJANGO_ENV=production
       - DJANGO_SETTINGS_MODULE=config.settings.prod
     depends_on:
       - redis
@@ -41,15 +56,15 @@ services:
   celery-beat:
     build:
       context: .
+      dockerfile: Dockerfile.prod
       args:
         ENVIRONMENT: prod
     command: celery -A config beat --loglevel=info
     volumes:
       - .:/code
     env_file:
-      - .env.prod
+      - .env
     environment:
-      - DJANGO_ENV=production
       - DJANGO_SETTINGS_MODULE=config.settings.prod
     depends_on:
       - redis
@@ -61,6 +76,3 @@ services:
       - "80:80"
     depends_on:
       - web
-
-volumes:
-  postgres_data:

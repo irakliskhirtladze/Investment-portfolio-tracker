@@ -6,6 +6,42 @@ from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-2^_51&^6xv=&f^$pkkgtlc4=kkp)s9ne9jpfy=c6bd#7^i&abs")
+
+DEBUG = config("DEBUG", default=True, cast=bool)
+
+FINNHUB_API_KEY = config('FINNHUB_API_KEY', default="cqmr481r01qjs6oce1ugcqmr481r01qjs6oce1v0")
+
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())
+
+SITE_DOMAIN = config("SITE_DOMAIN", default="localhost:8000")
+SITE_NAME = "Portfolio Tracker"
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME', default="portfolio_tracker"),
+        'USER': config('DB_USER', default='dev'),
+        'PASSWORD': config('DB_PASSWORD', default='devpass'),
+        'HOST': config('DB_HOST', default='db'),
+        'PORT': config('DB_PORT', default='5432'),
+    }
+}
+
+API_BASE_URL = config("API_BASE_URL", default='http://127.0.0.1:8000/api')
+
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS',
+                              default='http://localhost:8000,http://localhost:8000',
+                              cast=Csv())
+
+# Celery settings
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://redis:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://redis:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

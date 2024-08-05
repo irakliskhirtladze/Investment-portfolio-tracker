@@ -3,19 +3,11 @@
 import os
 import sys
 from pathlib import Path
-from decouple import config
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', config('DJANGO_SETTINGS_MODULE', default='config.settings.dev'))
-    # # Load the appropriate .env file
-    # env_file = BASE_DIR / ('.env.dev' if os.getenv('DJANGO_ENV') == 'development' else '.env.prod')
-    # config = config(env_file)
-    #
-    # # Set the default settings module
-    # os.environ.setdefault('DJANGO_SETTINGS_MODULE',
-    #                       'project.settings.dev' if config('DJANGO_ENV') == 'development' else 'project.settings.prod')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
 
     try:
         from django.core.management import execute_from_command_line
