@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
 from celery.schedules import crontab
+import dj_database_url
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -18,14 +19,9 @@ SITE_DOMAIN = config("SITE_DOMAIN", default="localhost:8000")
 SITE_NAME = "Portfolio Tracker"
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default="portfolio_tracker"),
-        'USER': config('DB_USER', default='dev'),
-        'PASSWORD': config('DB_PASSWORD', default='devpass'),
-        'HOST': config('DB_HOST', default='db'),
-        'PORT': config('DB_PORT', default='5432'),
-    }
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL', default='postgresql://dev:devpass@localhost:5432/portfolio_tracker'),
+    )
 }
 
 API_BASE_URL = config("API_BASE_URL", default='http://127.0.0.1:8000/api')
