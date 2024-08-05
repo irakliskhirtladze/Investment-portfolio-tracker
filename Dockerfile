@@ -16,10 +16,12 @@ RUN pip install --upgrade pip setuptools \
 # Copy the Django project
 COPY . /code/
 
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Expose port for development server
 EXPOSE 8000
 
 # Run the development server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--reload", "--workers=3"]
