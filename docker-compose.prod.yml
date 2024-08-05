@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         ENVIRONMENT: prod
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000  --timeout=30 --threads=10
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout=30 --threads=10
     volumes:
       - .:/code
     env_file:
