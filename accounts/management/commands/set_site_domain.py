@@ -1,14 +1,14 @@
 from django.core.management.base import BaseCommand
 from django.contrib.sites.models import Site
-from decouple import config
+from django.conf import settings
 
 
 class Command(BaseCommand):
     help = 'Sets the domain and name for the Site model'
 
     def handle(self, *args, **options):
-        domain = config('SITE_DOMAIN', default='localhost:8000')
-        name = config('SITE_NAME', default='My Site')
+        domain = settings.SITE_DOMAIN
+        name = settings.SITE_NAME
 
         site = Site.objects.get_current()
         site.domain = domain

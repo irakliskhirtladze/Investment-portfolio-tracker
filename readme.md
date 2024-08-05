@@ -30,30 +30,17 @@ This Django backend has 2 apps:
     cd Investment-portfolio-tracker
     ```
 
-2. **Create a `.env` file** in the project root and add your environment variables (replace variables with actual values):
-    ```env
-    FINNHUB_API_KEY=replace_with_your_finnhub_api_key
-    SECRET_KEY=replace_with_your_secret_key
-    DB_NAME=portfolio_tracker
-    DB_USER=replace_with_your_db_user
-    DB_PASSWORD=replace_with_your_db_password
-    DB_HOST=db
-    DB_PORT=5432
-    SITE_DOMAIN=localhost:8000
-    SITE_NAME=Investment Portfolio Tracker
-    ```
-
-3. **Build and run the Docker containers (initial setup or when dependancies have changed)**:
+2. **Build and run the Docker containers (initial setup or when dependancies have changed)**:
     ```sh
     docker-compose up --build
     ```
 
-4. **To just run the Docker containers (subsequent runs without building image)**:
+3. **To just run the Docker containers (subsequent runs without building image)**:
     ```sh
     docker-compose up
     ```
 
-5. **Access the application**:
+4. **Access the application**:
     Open your web browser and navigate to [http://localhost:8000](http://localhost:8000).
     
 
@@ -82,38 +69,25 @@ This Django backend has 2 apps:
     - Create a database and a user:
       ```sql
       CREATE DATABASE portfolio_tracker;
-      CREATE USER your_db_user WITH PASSWORD 'your_db_password';
+      CREATE USER your_db_user WITH PASSWORD 'devpass';
       ALTER ROLE your_db_user SET client_encoding TO 'utf8';
       ALTER ROLE your_db_user SET default_transaction_isolation TO 'read committed';
       ALTER ROLE your_db_user SET timezone TO 'UTC';
       GRANT ALL PRIVILEGES ON DATABASE portfolio_tracker TO your_db_user;
       ```
 
-5. Create a .env file in the backend directory (where manage.py is located) and add the FINNHUB_API_KEY along with any other necessary environment variables:
-    ```sh
-    FINNHUB_API_KEY=replace_this_with_your_actual_finnhub_api_key
-    SECRET_KEY=your_secret_key
-    DB_NAME=portfolio_tracker
-    DB_USER=your_db_user
-    DB_PASSWORD=your_db_password
-    DB_HOST=localhost
-    DB_PORT=5432
-    SITE_DOMAIN=localhost:8000
-    SITE_NAME=Investment Portfolio Tracker
-    ```
-
-6. Apply migrations:
+5. Apply migrations:
     ```sh
     python manage.py migrate
     ```
 
-7. Set the site domain:
+6. Set the site domain:
 
    ```sh
    python manage.py set_site_domain
    ```
 
-8. Run the development server:
+7. Run the development server:
     ```sh
     python manage.py runserver
     ```
