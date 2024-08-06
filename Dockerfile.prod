@@ -16,12 +16,11 @@ RUN pip install --upgrade pip setuptools \
 # Copy project
 COPY . /code/
 
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Settings module
 ENV DJANGO_SETTINGS_MODULE=config.settings.prod
-
-# # Build-time argument
-# ARG ENVIRONMENT
-# ENV DJANGO_ENV=${ENVIRONMENT}
 
 # Expose port for Gunicorn
 EXPOSE 8000
