@@ -4,11 +4,13 @@ from datetime import timedelta
 from decouple import config, Csv
 from celery.schedules import crontab
 import dj_database_url
+from django.core.management.utils import get_random_secret_key
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = config("SECRET_KEY", default="django-insecure-2^_51&^6xv=&f^$pkkgtlc4=kkp)s9ne9jpfy=c6bd#7^i&abs")
+# "django-insecure-2^_51&^6xv=&f^$pkkgtlc4=kkp)s9ne9jpfy=c6bd#7^i&abs"
+SECRET_KEY = config("SECRET_KEY", default=get_random_secret_key())
 
 DEBUG = config("DEBUG", default=True, cast=bool)
 
@@ -64,6 +66,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # New
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",  # New
     'django.middleware.common.CommonMiddleware',
@@ -123,8 +126,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
