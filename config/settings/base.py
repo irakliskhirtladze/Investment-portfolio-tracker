@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'drf_yasg',
+    'django_celery_beat',
     # Local
     'accounts',
     'portfolio',
