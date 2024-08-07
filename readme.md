@@ -1,6 +1,8 @@
 - The API part (backend) is 99% ready functionality-wise, with some changes added periodically.
+- See the API live at https://investment-portfolio-tracker-production.up.railway.app/api
+or for documentation at https://investment-portfolio-tracker-production.up.railway.app/swagger/
 - Please consider becoming a contributor for frontend development with react framework (or other frameworks)
-- Please don't hesitate to let me know any issues.
+- Don't hesitate to let me know any issues.
 
 # Overview of the project
 Investment portfolio tracker is meant to provide users with ability to track their existing investments with minimal effort.

@@ -1,6 +1,8 @@
 .venv
 .idea
 .env
+.github/
+*.pyc
 
 __pycache__/
 .idea/
