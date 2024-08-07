@@ -180,6 +180,6 @@ SITE_ID = 1
 CELERY_BEAT_SCHEDULE = {
     'fetch-and-store-portfolio-values-every-night': {
         'task': 'stats.tasks.fetch_and_store_portfolio_values',
-        'schedule': crontab(hour=23, minute=59),
+        'schedule': crontab(minute='*/1'),
     },
 }
