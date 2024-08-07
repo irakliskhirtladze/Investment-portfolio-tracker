@@ -41,7 +41,7 @@ This Django backend has 2 apps:
     ```
 
 4. **Access the application**:
-    Open your web browser and navigate to [http://localhost:8000](http://localhost:8000).
+    Open your web browser and navigate to [http://localhost:8000/api](http://localhost:8000/api).
     
 
 ### Without Docker 
