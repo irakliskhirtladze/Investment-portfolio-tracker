@@ -1,7 +1,6 @@
 from pathlib import Path
 import os
 from datetime import timedelta
-import pytz
 from decouple import config, Csv
 from celery.schedules import crontab
 import dj_database_url
@@ -122,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
-TZ = pytz.timezone('Asia/Tbilisi')  # New
 USE_I18N = True
 USE_TZ = True
 

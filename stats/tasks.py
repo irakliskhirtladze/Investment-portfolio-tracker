@@ -5,7 +5,7 @@ from portfolio.models import PortfolioEntry, CashBalance
 from stats.models import PortfolioValue
 from django.contrib.auth import get_user_model
 from portfolio.utils import fetch_stock_details, fetch_crypto_details
-from config.settings.base import TZ
+import pytz
 
 
 User = get_user_model()
@@ -15,6 +15,8 @@ def fetch_and_store_portfolio_values():
     """
     Fetches the current portfolio values for all users and stores them in the PortfolioValue model.
     """
+    tz = pytz.timezone('Asia/Tbilisi')
+
     for user in User.objects.all():
         # Calculate total portfolio value
         total_value = 0
@@ -53,7 +55,7 @@ def fetch_and_store_portfolio_values():
         # )
     
         # Store the portfolio value with a unique timestamp per minute
-        current_time = timezone.now().astimezone(TZ)
+        current_time = timezone.now().astimezone(tz)
         portfolio_value, created = PortfolioValue.objects.update_or_create(
             user=user,
             timestamp__year=current_time.year,
