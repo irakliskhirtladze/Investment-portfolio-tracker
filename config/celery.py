@@ -18,15 +18,15 @@ app.autodiscover_tasks()
 
 # Define the Celery-Beat schedules
 app.conf.beat_schedule = {
-    # 'fetch-and-store-portfolio-values-every-night': {
-    #     'task': 'stats.tasks.fetch_and_store_portfolio_values',
-    #     'schedule': crontab(hour=0, minute=0),  # Every midnight
-    # },
-    # Add other celery-beat schedules here as needed
     'fetch-and-store-portfolio-values-every-night': {
         'task': 'stats.tasks.fetch_and_store_portfolio_values',
-        'schedule': crontab(minute='*'),  # Every minute for testing
+        'schedule': crontab(hour=0, minute=0),  # Every midnight
     },
+    # Add other celery-beat schedules here as needed
+    # 'fetch-and-store-portfolio-values-every-night': {
+    #     'task': 'stats.tasks.fetch_and_store_portfolio_values',
+    #     'schedule': crontab(minute='*'),  # Every minute for testing
+    # },
 }
 
 @app.task(bind=True)
