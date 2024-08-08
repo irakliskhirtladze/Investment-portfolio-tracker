@@ -87,7 +87,7 @@ def update_portfolio_entry(user, transaction):
         new_total_cost = ((portfolio_entry.quantity * portfolio_entry.average_trade_price) +
                           (transaction.quantity * transaction.trade_price))
         portfolio_entry.average_trade_price = ((new_total_cost / new_total_quantity).
-                                               quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                                               quantize(Decimal('0.00001'), rounding=ROUND_HALF_UP))
         portfolio_entry.quantity = new_total_quantity
     elif transaction.transaction_type == TransactionType.SELL:
         portfolio_entry.quantity -= transaction.quantity
