@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from datetime import timedelta
+import pytz
 from decouple import config, Csv
 from celery.schedules import crontab
 import dj_database_url
@@ -120,7 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tblisi'
+TZ = pytz.timezone(TIME_ZONE)  # New
 USE_I18N = True
 USE_TZ = True
 
@@ -174,9 +176,3 @@ DJOSER = {
 
 SITE_ID = 1
 
-CELERY_BEAT_SCHEDULE = {
-    'fetch-and-store-portfolio-values-every-night': {
-        'task': 'stats.tasks.fetch_and_store_portfolio_values',
-        'schedule': crontab(minute='*'),
-    },
-}

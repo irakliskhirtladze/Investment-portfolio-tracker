@@ -5,6 +5,7 @@ from portfolio.models import PortfolioEntry, CashBalance
 from stats.models import PortfolioValue
 from django.contrib.auth import get_user_model
 from portfolio.utils import fetch_stock_details, fetch_crypto_details
+from config.settings.base import TZ
 
 
 User = get_user_model()
@@ -38,7 +39,8 @@ def fetch_and_store_portfolio_values():
         total_value += investments_value
 
         # Store the portfolio value
-        today = timezone.now().date()
+        now_utc4 = timezone.now().astimezone(TZ)  # Convert to UTC+4
+        today = now_utc4.date()
         portfolio_value, created = PortfolioValue.objects.update_or_create(
             user=user,
             timestamp__date=today,  # Ensure only one record per day
@@ -46,7 +48,7 @@ def fetch_and_store_portfolio_values():
                 'total_value': total_value,
                 'cash_balance': cash_balance.balance if cash_balance else 0,
                 'investments_value': investments_value,
-                'timestamp': timezone.now(),
+                'timestamp': now_utc4,
             }
         )
 
