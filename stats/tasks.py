@@ -37,16 +37,32 @@ def fetch_and_store_portfolio_values():
 
         total_value += investments_value
 
-        # Store the portfolio value
-        today = timezone.now().date()
+        # # Store the portfolio value
+        # today = timezone.now().date()
+        # portfolio_value, created = PortfolioValue.objects.update_or_create(
+        #     user=user,
+        #     timestamp__date=today,  # Ensure only one record per day
+        #     defaults={
+        #         'total_value': total_value,
+        #         'cash_balance': cash_balance.balance if cash_balance else 0,
+        #         'investments_value': investments_value,
+        #         'timestamp': timezone.now(),
+        #     }
+        # )
+
+        current_time = timezone.now()
         portfolio_value, created = PortfolioValue.objects.update_or_create(
             user=user,
-            # timestamp__date=today,  # Ensure only one record per day
+            timestamp__year=current_time.year,
+            timestamp__month=current_time.month,
+            timestamp__day=current_time.day,
+            timestamp__hour=current_time.hour,
+            timestamp__minute=current_time.minute,  # Ensure uniqueness per minute
             defaults={
                 'total_value': total_value,
                 'cash_balance': cash_balance.balance if cash_balance else 0,
                 'investments_value': investments_value,
-                'timestamp': timezone.now(),
+                'timestamp': current_time,
             }
         )
 
