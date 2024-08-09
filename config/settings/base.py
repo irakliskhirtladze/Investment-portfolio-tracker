@@ -9,7 +9,6 @@ from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# "django-insecure-2^_51&^6xv=&f^$pkkgtlc4=kkp)s9ne9jpfy=c6bd#7^i&abs"
 SECRET_KEY = config("SECRET_KEY", default=get_random_secret_key())
 
 DEBUG = config("DEBUG", default=True, cast=bool)
@@ -63,6 +62,8 @@ INSTALLED_APPS = [
     'accounts',
     'portfolio',
     'stats',
+
+    'web', # For frontend
 ]
 
 MIDDLEWARE = [
@@ -82,7 +83,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'web'/'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -129,6 +130,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [BASE_DIR/'web'/'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
