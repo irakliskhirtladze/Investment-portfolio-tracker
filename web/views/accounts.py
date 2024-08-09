@@ -37,8 +37,6 @@ class LoginView(View):
                 response = redirect('dashboard')
                 response.set_cookie('auth_token', access_token, httponly=True, secure=True)
                 response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True)
-                print(response)
-                print(response.cookies)
                 return response
             else:
                 messages.error(request, "Invalid credentials or unable to log in")
