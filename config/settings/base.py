@@ -26,7 +26,7 @@ DATABASES = {
     )
 }
 
-API_BASE_URL = config("API_BASE_URL", default='http://127.0.0.1:8000/api')
+API_BASE_URL = config("API_BASE_URL", default='http://127.0.0.1:8000/api,http://localhost:8000/api')
 
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS',
                               default='http://localhost:8000,http://localhost:8000',

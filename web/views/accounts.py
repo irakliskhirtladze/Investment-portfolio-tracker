@@ -8,6 +8,9 @@ import requests
 from web.forms import LoginForm, RegisterForm, ResendActivationForm
 from web.utils import redirect_authenticated_user
 
+import http.client
+import json
+
 
 @method_decorator(redirect_authenticated_user, name='dispatch')
 class LoginView(View):
@@ -21,38 +24,43 @@ class LoginView(View):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            # Make an API request to authenticate
-            response = requests.post(f"{settings.API_BASE_URL}/auth/jwt/create/", data={
-                'email': email,
-                'password': password
-            })
+            status_response = requests.post(f"{settings.API_BASE_URL}/auth/check-status/", data={'email': email})
 
-            if response.status_code == 200:  # Success
-                data = response.json()
-                access_token = data.get('access')
-                refresh_token = data.get('refresh')
+            if status_response.status_code == 200:
+                user_status = status_response.json().get('status')
+                if user_status == 'active':
+                    login_response = requests.post(f"{settings.API_BASE_URL}/auth/jwt/create/", data={
+                        'email': email,
+                        'password': password
+                    })
 
-                response = redirect('dashboard')
-                response.set_cookie('auth_token', access_token, httponly=True, secure=True)
-                response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True)
-                return response
-            else:
-                # Handle authentication error
-                error_detail = response.json().get('detail', '')
-                if 'No active account found' in error_detail:
-                    # User might not be registered or activated
-                    register_url = reverse('register')
+                    if login_response.status_code == 200:
+                        data = login_response.json()
+                        access_token = data.get('access')
+                        refresh_token = data.get('refresh')
+
+                        response = redirect('dashboard')
+                        response.set_cookie('auth_token', access_token, httponly=True, secure=True)
+                        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True)
+                        return response
+                    else:
+                        messages.error(request, "Invalid credentials or unable to log in.")
+                elif user_status == 'inactive':
                     resend_activation_url = reverse('resend_activation')
-                    print(f"Register URL: {register_url}")
-                    print(f"Resend Activation URL: {resend_activation_url}")
                     messages.error(
                         request, 
-                        f"Your account is either not registered or not activated. "
-                        f"Please <a href='{register_url}'>register</a> or "
-                        f"<a href='{resend_activation_url}'>resend activation email</a>."
+                        f"Your account is not activated. "
+                        f"<a href='{resend_activation_url}'>Resend activation email</a>."
                     )
-                else:
-                    messages.error(request, "Invalid credentials or unable to log in.")
+                elif user_status == 'unregistered':
+                    register_url = reverse('register')
+                    messages.error(
+                        request, 
+                        f"No account found with this email. "
+                        f"Please <a href='{register_url}'>register</a>."
+                    )
+            else:
+                messages.error(request, "Error checking user status. Please try again.")
 
         return render(request, 'accounts/login.html', {'form': form})
 

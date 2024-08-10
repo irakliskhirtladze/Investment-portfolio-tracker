@@ -44,7 +44,7 @@ urlpatterns = [
 
     path('api/', include('portfolio.urls')),
     path('api/', include('stats.urls')),
-    path('api/auth/', include('accounts.urls')),  # This includes only custom activation view
+    path('api/auth/', include('accounts.urls')),
 
     path('api/auth/', include('djoser.urls')),
     path('api/auth/jwt/create/', TokenObtainPairView.as_view(), name='jwt-create'),

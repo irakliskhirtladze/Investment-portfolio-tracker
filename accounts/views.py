@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class ActivateUser(APIView):
@@ -22,3 +25,18 @@ class ActivateUser(APIView):
             return Response({"message": "Your account has been activated!"}, status=status.HTTP_200_OK)
         else:
             return Response(response.json(), status=response.status_code)
+
+
+class CheckUserStatus(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            user = User.objects.get(email=email)
+            if user.is_active:
+                return Response({"status": "active"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"status": "inactive"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"status": "unregistered"}, status=status.HTTP_200_OK)
