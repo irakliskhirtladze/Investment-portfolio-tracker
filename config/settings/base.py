@@ -181,3 +181,4 @@ DJOSER = {
 
 SITE_ID = 1
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'

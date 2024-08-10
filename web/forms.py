@@ -11,3 +11,6 @@ class RegisterForm(forms.Form):
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
     re_password = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
 
+
+class ResendActivationForm(forms.Form):
+    email = forms.EmailField(label='Email', max_length=254)

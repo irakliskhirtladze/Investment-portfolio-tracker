@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.views import View
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.conf import settings
 import requests
-from web.forms import LoginForm, RegisterForm
+from web.forms import LoginForm, RegisterForm, ResendActivationForm
 from web.utils import redirect_authenticated_user
 
 
@@ -26,7 +27,7 @@ class LoginView(View):
                 'password': password
             })
 
-            if response.status_code == 200:
+            if response.status_code == 200:  # Success
                 data = response.json()
                 access_token = data.get('access')
                 refresh_token = data.get('refresh')
@@ -36,7 +37,22 @@ class LoginView(View):
                 response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True)
                 return response
             else:
-                messages.error(request, "Invalid credentials or unable to log in")
+                # Handle authentication error
+                error_detail = response.json().get('detail', '')
+                if 'No active account found' in error_detail:
+                    # User might not be registered or activated
+                    register_url = reverse('register')
+                    resend_activation_url = reverse('resend_activation')
+                    print(f"Register URL: {register_url}")
+                    print(f"Resend Activation URL: {resend_activation_url}")
+                    messages.error(
+                        request, 
+                        f"Your account is either not registered or not activated. "
+                        f"Please <a href='{register_url}'>register</a> or "
+                        f"<a href='{resend_activation_url}'>resend activation email</a>."
+                    )
+                else:
+                    messages.error(request, "Invalid credentials or unable to log in.")
 
         return render(request, 'accounts/login.html', {'form': form})
 
@@ -87,6 +103,7 @@ class RegisterView(View):
         return render(request, self.template_name, {'form': form})
 
 
+@method_decorator(redirect_authenticated_user, name='dispatch')
 class ActivateView(View):
     def get(self, request, uidb64, token):
         # Send a request to the API to activate the user
@@ -96,3 +113,27 @@ class ActivateView(View):
             return render(request, 'accounts/activation.html', {'success': True})
         else:
             return render(request, 'accounts/activation.html', {'success': False, 'errors': response.json()})
+
+
+@method_decorator(redirect_authenticated_user, name='dispatch')
+class ResendActivationView(View):
+    template_name = 'accounts/resend_activation.html'
+
+    def get(self, request):
+        form = ResendActivationForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = ResendActivationForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            url = f"{settings.API_BASE_URL}/auth/users/resend_activation/"
+            response = requests.post(url, data={'email': email})
+
+            if response.status_code == 204:
+                messages.success(request, "Activation email has been resent. Please check your inbox.")
+                return redirect('login')
+            else:
+                messages.error(request, "An error occurred. Please check your email address and try again.")
+        
+        return render(request, self.template_name, {'form': form})
