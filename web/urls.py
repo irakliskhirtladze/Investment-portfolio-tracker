@@ -7,7 +7,7 @@ urlpatterns = [
     path('accounts/login/', LoginView.as_view(), name='login'),
     path('accounts/logout/', login_required(LogoutView.as_view()), name='logout'),
     path('accounts/register/', RegisterView.as_view(), name='register'),
-    path('accounts/activate/<uidb64>/<token>/', ActivateView.as_view(), name='activate'),
+    path('accounts/activate/<str:uidb64>/<str:token>/', ActivateView.as_view(), name='activate'),
 
     path('', login_required(Dashboard.as_view()), name='dashboard'),
 ]

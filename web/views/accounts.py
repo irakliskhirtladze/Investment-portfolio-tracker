@@ -1,17 +1,14 @@
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.views import LoginView as BaseLoginView
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.views import View
-from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.conf import settings
-from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
 import requests
 from web.forms import LoginForm, RegisterForm
+from web.utils import redirect_authenticated_user
 
 
+@method_decorator(redirect_authenticated_user, name='dispatch')
 class LoginView(View):
     def get(self, request):
         form = LoginForm()
@@ -53,6 +50,7 @@ class LogoutView(View):
         return response
 
 
+@method_decorator(redirect_authenticated_user, name='dispatch')
 class RegisterView(View):
     template_name = 'accounts/register.html'
 
@@ -91,7 +89,10 @@ class RegisterView(View):
 
 class ActivateView(View):
     def get(self, request, uidb64, token):
-        response = requests.get(f"{settings.API_URL}/auth/activate/{uidb64}/{token}/")
+        # Send a request to the API to activate the user
+        response = requests.get(f"{settings.API_BASE_URL}/auth/activate/{uidb64}/{token}/")
+
         if response.status_code == 200:
-            return redirect('login')
-        return render(request, 'accounts/activate.html', {'error': 'Activation link is invalid or has expired'})
+            return render(request, 'accounts/activation.html', {'success': True})
+        else:
+            return render(request, 'accounts/activation.html', {'success': False, 'errors': response.json()})
