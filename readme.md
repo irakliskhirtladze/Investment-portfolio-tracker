@@ -19,7 +19,9 @@ Every subsequent transaction will be needed only for reflecting actual deposit/w
 ## Structure
 This Django backend has 2 apps:
 - _**accounts**_: This is backend for user registration, authentication, etc.
-- _**portfolio**_: Also backend for portfolio tracking and transactions.
+- _**portfolio**_: Backend for portfolio tracking and transactions.
+- _**stats**_: Backend for generating daily portfolio values by utilizing Celery tasks (partly done).
+- _**web**_: Frontend solution with template rendering (in progress).
 
 
 # Setup
