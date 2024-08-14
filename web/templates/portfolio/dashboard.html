@@ -4,7 +4,8 @@
 
 {% block content %}
 <h1>DASHBOARD</h1>
-<p>Welcome to your dashboard!</p>
+
+<a href="{% url 'initial-setup' %}">Portfolio setup/reset</a>
 
 <p>Total portfolio value: {{ total_portfolio_value }}</p>
 <p>Total cash value: {{ cash_balance }}</p>

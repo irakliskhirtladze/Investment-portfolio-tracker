@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Initial Setup{% endblock %}
+
+{% block content %}
+<h1>Initial Setup</h1>
+
+<form id="initial-setup-form" method="post" action="{% url 'initial-setup' %}">
+    {% csrf_token %}
+    
+    <!-- Cash Balance Input -->
+    <div>
+        <label for="cash_balance">Cash Balance:</label>
+        <input type="number" step="0.01" name="cash_balance" id="cash_balance" value="0.00">
+    </div>
+
+    <!-- Asset Forms Container -->
+    <div id="assets-container"></div>
+
+    <!-- Add Asset Button -->
+    <button type="button" id="add-asset-btn">Add Asset</button>
+    
+    <!-- Submit Button -->
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('add-asset-btn').addEventListener('click', function() {
+            const assetsContainer = document.getElementById('assets-container');
+            const assetForm = document.createElement('div');
+            assetForm.classList.add('asset-form');
+
+            assetForm.innerHTML = `
+                <div>
+                    <label for="asset_type">Asset Type:</label>
+                    <select name="asset_type">
+                        <option value="stock">Stock</option>
+                        <option value="crypto">Crypto</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="asset_symbol">Symbol:</label>
+                    <input type="text" name="asset_symbol" required>
+                </div>
+                <div>
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" step="0.00001" name="quantity" required>
+                </div>
+                <div>
+                    <label for="average_trade_price">Average Trade Price:</label>
+                    <input type="number" step="0.01" name="average_trade_price" required>
+                </div>
+                <button type="button" class="remove-asset-btn">Remove</button>
+            `;
+
+            assetsContainer.appendChild(assetForm);
+
+            assetForm.querySelector('.remove-asset-btn').addEventListener('click', function() {
+                assetsContainer.removeChild(assetForm);
+            });
+        });
+    });
+</script>
+{% endblock %}

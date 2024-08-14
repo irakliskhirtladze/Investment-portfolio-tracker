@@ -3,8 +3,11 @@ from django.views.generic import TemplateView, FormView, View
 from django.conf import settings
 from django.contrib import messages
 
+from web.forms import CashBalanceForm, AssetForm
+
 from decimal import Decimal
 import requests
+import json
 
 
 class Dashboard(View):
@@ -39,3 +42,49 @@ class Dashboard(View):
         # Handle any errors during the refresh process
         messages.error(request, "Failed to refresh portfolio. Please try again.")
         return self.get(request)
+
+
+class InitialSetup(View):
+    def get(self, request):
+        return render(request, 'portfolio/initial_setup.html')
+
+    
+    def post(self, request):
+        # Prepare cash balance
+        cash_balance = request.POST.get('cash_balance', 0)
+        cash_data = {"balance": float(cash_balance)}
+
+        # Prepare portfolio entries
+        portfolio_entries = []
+        asset_types = request.POST.getlist('asset_type')
+        asset_symbols = request.POST.getlist('asset_symbol')
+        quantities = request.POST.getlist('quantity')
+        average_trade_prices = request.POST.getlist('average_trade_price')
+
+        for asset_type, asset_symbol, quantity, average_trade_price in zip(asset_types, asset_symbols, quantities, average_trade_prices):
+            if asset_type and asset_symbol and quantity and average_trade_price:
+                portfolio_entries.append({
+                    "asset_type": asset_type,
+                    "asset_symbol": asset_symbol,
+                    "quantity": float(quantity),
+                    "average_trade_price": float(average_trade_price)
+                })
+
+        data = {
+            "cash_balance": cash_data,
+            "portfolio_entries": portfolio_entries
+        }
+
+        # Send the data to the API endpoint
+        response = requests.post(
+            f"{settings.API_BASE_URL}/initial-setup/",
+            json=data,
+            headers={'Authorization': f'Bearer {request.COOKIES["auth_token"]}'}
+        )
+
+        if response.status_code == 200:
+            messages.success(request, "Setup completed successfully!")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "There was an error during setup.")
+            return render(request, 'portfolio/initial_setup.html')

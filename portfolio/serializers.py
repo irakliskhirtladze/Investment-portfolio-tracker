@@ -14,7 +14,6 @@ class CashBalanceSerializer(serializers.ModelSerializer):
         fields = ['balance']
 
     def validate(self, data):
-        print("Debug - Balance value:", data['balance'])  # Add this line for debugging
         if data['balance'] < 0:
             raise serializers.ValidationError("Cash balance cannot be a negative value.")
         return data
