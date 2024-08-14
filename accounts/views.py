@@ -28,6 +28,7 @@ class ActivateUser(APIView):
 
 
 class CheckUserStatus(APIView):
+    """Checks if user is active, incative or not registered"""
     permission_classes = [AllowAny]
 
     def post(self, request):

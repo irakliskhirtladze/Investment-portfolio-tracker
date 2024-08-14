@@ -9,6 +9,12 @@
 <p>Total portfolio value: {{ total_portfolio_value }}</p>
 <p>Total cash value: {{ cash_balance }}</p>
 
+<!-- Refresh Portfolio Form -->
+<form method="post" action="{% url 'dashboard' %}">
+    {% csrf_token %}
+    <button type="submit">Refresh Portfolio</button>
+</form>
+
 <table>
     <thead>
         <tr>
@@ -27,11 +33,19 @@
     </thead>
     <tbody>
         {% for entry in portfolio_entries %}
-            <tr>
-                {% for value in entry.values %}
-                    <td>{{ value }}</td>
-                {% endfor %}
-            </tr>
+        <tr>
+            <td>{{ entry.asset_type }}</td>
+            <td>{{ entry.asset_symbol }}</td>
+            <td>{{ entry.asset_name }}</td>
+            <td>{{ entry.quantity }}</td>
+            <td>{{ entry.average_trade_price }}</td>
+            <td>{{ entry.commissions }}</td>
+            <td>{{ entry.cost_basis }}</td>
+            <td>{{ entry.current_price }}</td>
+            <td>{{ entry.current_value }}</td>
+            <td>{{ entry.profit_loss }}</td>
+            <td>{{ entry.profit_loss_percent }}</td>
+        </tr>
         {% empty %}
             <tr>
                 <td colspan="100%">Looks like your portfolio has no assets yet.</td>
@@ -40,5 +54,4 @@
     </tbody>
 </table>
     
-
 {% endblock %}
