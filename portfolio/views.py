@@ -36,12 +36,12 @@ class PortfolioViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request, *args, **kwargs):
         """Returns the cash balance and portfolio entries for the authenticated user."""
         user = request.user
-        cash_balance = CashBalance.objects.filter(user=user).first()
+        cash_balance = CashBalance.objects.filter(user=user).first() or 0
         portfolio_entries = self.get_queryset()
 
         combined_data = {
             'total_portfolio_value': self.total_portfolio_value(user),
-            'cash_balance': CashBalanceSerializer(cash_balance).data if cash_balance else None,
+            'cash_balance': cash_balance,
             'portfolio_entries': PortfolioEntrySerializer(portfolio_entries, many=True).data
         }
 

@@ -20,6 +20,7 @@
                 {% endif %}
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'logout' %}">Logout</a></li>
+                    <li><h3>{{ user.email }}</h3></li>
                 {% else %}
                     <li><a href="{% url 'login' %}">Login</a></li>
                     <li><a href="{% url 'register' %}">Register</a></li>

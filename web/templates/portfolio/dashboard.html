@@ -7,6 +7,38 @@
 <p>Welcome to your dashboard!</p>
 
 <p>Total portfolio value: {{ total_portfolio_value }}</p>
+<p>Total cash value: {{ cash_balance }}</p>
 
+<table>
+    <thead>
+        <tr>
+            <th>Asset Type</th>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Average Price</th>
+            <th>Commissions</th>
+            <th>Cost Basis</th>
+            <th>Current Price</th>
+            <th>Current Value</th>
+            <th>Profit/Loss</th>
+            <th>Profit/Loss %</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in portfolio_entries %}
+            <tr>
+                {% for value in entry.values %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="100%">Looks like your portfolio has no assets yet.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    
 
 {% endblock %}
