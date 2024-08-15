@@ -3,11 +3,10 @@ from django.views.generic import TemplateView, FormView, View
 from django.conf import settings
 from django.contrib import messages
 
-from web.forms import CashBalanceForm, AssetForm
+from web.forms import CashBalanceForm, AssetForm, AssetTransactionForm, CashTransactionForm
 
 from decimal import Decimal
 import requests
-import json
 
 
 class Dashboard(View):
@@ -48,7 +47,6 @@ class InitialSetup(View):
     def get(self, request):
         return render(request, 'portfolio/initial_setup.html')
 
-    
     def post(self, request):
         # Prepare cash balance
         cash_balance = request.POST.get('cash_balance', 0)
@@ -70,12 +68,8 @@ class InitialSetup(View):
                     "average_trade_price": float(average_trade_price)
                 })
 
-        data = {
-            "cash_balance": cash_data,
-            "portfolio_entries": portfolio_entries
-        }
+        data = {"cash_balance": cash_data, "portfolio_entries": portfolio_entries}
 
-        # Send the data to the API endpoint
         response = requests.post(
             f"{settings.API_BASE_URL}/initial-setup/",
             json=data,
@@ -86,5 +80,36 @@ class InitialSetup(View):
             messages.success(request, "Setup completed successfully!")
             return redirect('dashboard')
         else:
-            messages.error(request, "There was an error during setup.")
+            messages.error(request, response.json()['non_field_errors'][0])
             return render(request, 'portfolio/initial_setup.html')
+        
+    
+class AssetTransaction(View):
+    def get(self, request):
+        return render(request, 'portfolio/asset_transaction.html', {'form': AssetTransactionForm()})
+    
+    def post(self, request):
+        form = AssetTransactionForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            data['user'] = request.user.id
+
+            response = requests.post(
+                f"{settings.API_BASE_URL}/transactions/create-investment-transaction/",
+                json=data,
+                headers={"Authorization": f"Bearer {request.COOKIES['auth_token']}"}
+            )
+
+            if response.status_code == 200:
+                messages.success(request, "Transaction created successfully!")
+                return redirect('asset-transaction')
+            else:
+                messages.error(request, response.json()['non_field_errors'][0])
+                return render(request, 'portfolio/asset_transaction.html', form = form)
+                
+
+
+
+class CashTransaction(View):
+    pass
+

@@ -3,17 +3,23 @@
 {% block title %}Initial Setup{% endblock %}
 
 {% block content %}
-<h1>Initial Setup</h1>
+<h1>INITIAL SETUP</h1>
+
+<h2>WARNING!</h2>
+<h3>Submitting the data from this page will reset portfolio to submitted data.</h3>
+<h3>This means that any existing transactions, cash or assets will be DELETED, before inserting the submitted data.</h3>
+<br>
 
 <form id="initial-setup-form" method="post" action="{% url 'initial-setup' %}">
     {% csrf_token %}
     
     <!-- Cash Balance Input -->
+    <h4>Add cash balance</h4>
     <div>
         <label for="cash_balance">Cash Balance:</label>
         <input type="number" step="0.01" name="cash_balance" id="cash_balance" value="0.00">
     </div>
-
+    <h4>Add assets</h4>
     <!-- Asset Forms Container -->
     <div id="assets-container"></div>
 

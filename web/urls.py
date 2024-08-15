@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 from web.views.accounts import LoginView, LogoutView, RegisterView, ActivateView, ResendActivationView
-from web.views.portfolio import Dashboard, InitialSetup
+from web.views.portfolio import Dashboard, InitialSetup, AssetTransaction, CashTransaction
 
 
 urlpatterns = [
@@ -13,4 +13,6 @@ urlpatterns = [
 
     path('', login_required(Dashboard.as_view()), name='dashboard'),
     path('initial-setup/', login_required(InitialSetup.as_view()), name='initial-setup'),
+    path('asset-transaction/', login_required(AssetTransaction.as_view()), name='asset-transaction'),
+    path('cash-transaction/', login_required(CashTransaction.as_view()), name='cash-transaction'),
 ]

@@ -6,6 +6,8 @@
 <h1>DASHBOARD</h1>
 
 <a href="{% url 'initial-setup' %}">Portfolio setup/reset</a>
+<a href="{% url 'asset-transaction' %}">New transaction</a>
+<a href="{% url 'cash-transaction' %}">Deposit/Withdrawal</a>
 
 <p>Total portfolio value: {{ total_portfolio_value }}</p>
 <p>Total cash value: {{ cash_balance }}</p>
