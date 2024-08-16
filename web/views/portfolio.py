@@ -108,8 +108,25 @@ class AssetTransaction(View):
                 return render(request, 'portfolio/asset_transaction.html', form = form)
                 
 
-
-
 class CashTransaction(View):
-    pass
+    def get(self, request):
+        return render(request, 'portfolio/cash_transaction.html', {'form': CashTransactionForm()})
+    
+    def post(self, request):
+        form = AssetTransactionForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            data['user'] = request.user.id
 
+            response = requests.post(
+                f"{settings.API_BASE_URL}/transactions/create-cash-transaction/",
+                json=data,
+                headers={"Authorization": f"Bearer {request.COOKIES['auth_token']}"}
+            )
+
+            if response.status_code == 200:
+                messages.success(request, "Transaction created successfully!")
+                return redirect('cash-transaction')
+            else:
+                messages.error(request, response.json()['non_field_errors'][0])
+                return render(request, 'portfolio/asset_transaction.html', form = form)
