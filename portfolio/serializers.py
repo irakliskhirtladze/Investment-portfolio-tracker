@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 from portfolio.choices import TransactionType, AssetType, CurrencyTransactionType
 from portfolio.models import InvestmentTransaction, CashTransaction, PortfolioEntry, CashBalance
@@ -67,14 +68,29 @@ class InvestmentTransactionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Stock symbol is required for stocks.")
         if data['asset_type'] == AssetType.CRYPTO and not data.get('symbol'):
             raise serializers.ValidationError("Crypto symbol is required for crypto.")
+        
+        # Validate positive quantity
+        if data['quantity'] <= 0:
+            raise serializers.ValidationError("Quantity must be greater than 0.")
+        
+        # Validate positive trade price
+        if data['trade_price'] <= 0:
+            raise serializers.ValidationError("Trade price must be greater than 0.")
+        
+        # Validate non negative commission
+        if data['commission'] < 0:
+            raise serializers.ValidationError("Commission must be greater than or equal to 0.")
+        
+        # Validate past date (ensure the transaction date is not in the future)
+        if data['transaction_date'] > timezone.now():
+            raise serializers.ValidationError("Date cannot be in the future.")
 
         # Validate cash balance for buy transactions
         if data['transaction_type'] == TransactionType.BUY:
             cash_balance = CashBalance.objects.get(user=user).balance
             total_cost = data['quantity'] * data['trade_price'] + data['commission']
             if total_cost > cash_balance:
-                raise serializers.ValidationError(
-                    {'cash_balance': _('Insufficient cash balance for this transaction.')})
+                raise serializers.ValidationError('Insufficient cash balance for this transaction.')
 
         # Validate portfolio quantity for sell transactions
         if data['transaction_type'] == TransactionType.SELL:
@@ -84,10 +100,9 @@ class InvestmentTransactionSerializer(serializers.ModelSerializer):
                 asset_symbol=data['symbol']
             ).first()
             if not portfolio_entry:
-                raise serializers.ValidationError(
-                    {'portfolio_entry': _('You currently do not own this asset so it cannot be sold.')})
+                raise serializers.ValidationError('You currently do not own this asset so it cannot be sold.')
             if data['quantity'] > portfolio_entry.quantity:
-                raise serializers.ValidationError({'quantity': _('Cannot sell more than the available quantity.')})
+                raise serializers.ValidationError('Cannot sell more than the available quantity.')
 
         return data
 
@@ -104,8 +119,20 @@ class CashTransactionSerializer(serializers.ModelSerializer):
         if data['transaction_type'] == CurrencyTransactionType.CASH_WITHDRAWAL:
             cash_balance = CashBalance.objects.get(user=user).balance
             if data['amount'] + data['commission'] > cash_balance:
-                raise serializers.ValidationError(
-                    {'cash_balance': _('Insufficient cash balance for this transaction.')})
+                raise serializers.ValidationError('Insufficient cash balance for this transaction.')
+        
+        # Validate positive quantity
+        if data['amount'] <= 0:
+            raise serializers.ValidationError("Quantity must be greater than 0.")
+        
+        # Validate non negative commission
+        if data['commission'] < 0:
+            raise serializers.ValidationError("Commission must be greater than or equal to 0.")
+        
+        # Validate past date (ensure the transaction date is not in the future)
+        if data['transaction_date'] > timezone.now():
+            raise serializers.ValidationError("Date cannot be in the future.")
+
         return data
 
 

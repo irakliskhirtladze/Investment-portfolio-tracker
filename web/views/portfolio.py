@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 
 from web.forms import CashBalanceForm, AssetForm, AssetTransactionForm, CashTransactionForm
+from web.utils import extract_and_add_error_messages
 
 from decimal import Decimal
 import requests
@@ -35,7 +36,7 @@ class Dashboard(View):
         refresh_url = f"{settings.API_BASE_URL}/portfolio/refresh/"
         refresh_response = requests.post(refresh_url, headers={'Authorization': f'Bearer {request.COOKIES["auth_token"]}'})
 
-        if refresh_response.status_code == 200:
+        if refresh_response.status_code == 201:
             return self.get(request)  # Re-render the dashboard with the updated data
 
         # Handle any errors during the refresh process
@@ -76,11 +77,12 @@ class InitialSetup(View):
             headers={'Authorization': f'Bearer {request.COOKIES["auth_token"]}'}
         )
 
-        if response.status_code == 200:
+        if response.status_code == 201:
             messages.success(request, "Setup completed successfully!")
             return redirect('dashboard')
         else:
-            messages.error(request, response.json()['non_field_errors'][0])
+            errors = response.json()
+            extract_and_add_error_messages(request, errors)
             return render(request, 'portfolio/initial_setup.html')
         
     
@@ -93,19 +95,31 @@ class AssetTransaction(View):
         if form.is_valid():
             data = form.cleaned_data
             data['user'] = request.user.id
+            data['transaction_date'] = data['transaction_date'].isoformat()
+
+            for key, value in data.items():
+                if isinstance(value, Decimal):
+                    data[key] = str(value)
 
             response = requests.post(
                 f"{settings.API_BASE_URL}/transactions/create-investment-transaction/",
                 json=data,
                 headers={"Authorization": f"Bearer {request.COOKIES['auth_token']}"}
             )
-
-            if response.status_code == 200:
+            
+            print(response.status_code)
+            if response.status_code == 201:
                 messages.success(request, "Transaction created successfully!")
                 return redirect('asset-transaction')
             else:
-                messages.error(request, response.json()['non_field_errors'][0])
-                return render(request, 'portfolio/asset_transaction.html', form = form)
+                errors = response.json()
+                extract_and_add_error_messages(request, errors)
+                return redirect('asset-transaction')
+        
+        else:
+            messages.error(request, "There was an error with your submission. Please try again.")
+        
+        return render(request, 'portfolio/asset_transaction.html', {form: form})
                 
 
 class CashTransaction(View):
@@ -117,6 +131,11 @@ class CashTransaction(View):
         if form.is_valid():
             data = form.cleaned_data
             data['user'] = request.user.id
+            data['transaction_date'] = data['transaction_date'].isoformat()
+
+            for key, value in data.items():
+                if isinstance(value, Decimal):
+                    data[key] = str(value)
 
             response = requests.post(
                 f"{settings.API_BASE_URL}/transactions/create-cash-transaction/",
@@ -124,9 +143,15 @@ class CashTransaction(View):
                 headers={"Authorization": f"Bearer {request.COOKIES['auth_token']}"}
             )
 
-            if response.status_code == 200:
+            if response.status_code == 201:
                 messages.success(request, "Transaction created successfully!")
                 return redirect('cash-transaction')
             else:
-                messages.error(request, response.json()['non_field_errors'][0])
-                return render(request, 'portfolio/asset_transaction.html', form = form)
+                errors = response.json()
+                extract_and_add_error_messages(request, errors)
+                return redirect('cash-transaction')
+
+        else:
+            messages.error(request, "There was an error with your submission. Please try again.")
+
+        return render(request, 'portfolio/cash_transaction.html', {form: form})

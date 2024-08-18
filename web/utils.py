@@ -4,6 +4,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from functools import wraps
+from django.contrib import messages
 
 
 def refresh_token(request):
@@ -31,3 +32,14 @@ def redirect_authenticated_user(view_func):
             return redirect('dashboard')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
+
+
+def extract_and_add_error_messages(request, errors):
+    if isinstance(errors, dict):
+        for value in errors.values():
+            extract_and_add_error_messages(request, value)
+    elif isinstance(errors, list):
+        for item in errors:
+            extract_and_add_error_messages(request, item)
+    else:
+        messages.error(request, errors)
