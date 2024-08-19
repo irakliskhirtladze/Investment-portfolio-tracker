@@ -7,50 +7,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Portfolio Tracker{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <!-- Add other CSS files or libraries here -->
 </head>
-
 
 <body>
     <header>
         <nav>
             <ul>
-                {% if request.path != request.resolver_match.url_name %}
-                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                {% endif %}
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                    <li><h3>{{ user.email }}</h3></li>
-                {% else %}
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'initial-setup' %}">Portfolio setup/reset</a></li>
+                <li><a href="{% url 'asset-transaction' %}">New transaction</a></li>
+                <li><a href="{% url 'cash-transaction' %}">Deposit/Withdrawal</a></li>
+                {% if not user.is_authenticated %}
                     <li><a href="{% url 'login' %}">Login</a></li>
                     <li><a href="{% url 'register' %}">Register</a></li>
                 {% endif %}
             </ul>
         </nav>
+        {% if user.is_authenticated %}
+            <div class="header-user">{{ user.email }}</div>
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+        {% endif %}
     </header>
 
     <main>
         {% if messages %}
-            <ul>
+            <ul class="messages">
                 {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
-                        {{ message|safe }}
-                    </li>
+                    <li class="{{ message.tags }}">{{ message|safe }}</li>
                 {% endfor %}
             </ul>
         {% endif %}
         
-        {% block content %}
-        <!-- Content will be injected here -->
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
     <footer>
         <p>&copy; 2024 - Investment Portfolio Tracker.</p>
     </footer>
-
-    {% comment %} <script src="{% static 'js/scripts.js' %}"></script> {% endcomment %}
-    <!-- Add other JavaScript files or libraries here -->
 </body>
-
 </html>

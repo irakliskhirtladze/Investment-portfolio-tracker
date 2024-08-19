@@ -93,8 +93,13 @@ def update_portfolio_entry(user, transaction):
         portfolio_entry.quantity -= transaction.quantity
 
     portfolio_entry.commissions += transaction.commission
-    calculate_portfolio_entry_fields(portfolio_entry)
-    portfolio_entry.save()
+    
+     # If the quantity becomes zero after a sell transaction, delete the entry
+    if portfolio_entry.quantity == 0:
+        portfolio_entry.delete()
+    else:
+        calculate_portfolio_entry_fields(portfolio_entry)
+        portfolio_entry.save()
 
 
 def update_cash_balance(user, transaction):

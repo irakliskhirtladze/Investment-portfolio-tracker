@@ -3,22 +3,24 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1>DASHBOARD</h1>
+<h1 class="page-title">DASHBOARD</h1>
 
-<a href="{% url 'initial-setup' %}">Portfolio setup/reset</a>
-<a href="{% url 'asset-transaction' %}">New transaction</a>
-<a href="{% url 'cash-transaction' %}">Deposit/Withdrawal</a>
+<div class="nav-links">
+    <a class="nav-link" href="{% url 'initial-setup' %}">Portfolio setup/reset</a>
+    <a class="nav-link" href="{% url 'asset-transaction' %}">New transaction</a>
+    <a class="nav-link" href="{% url 'cash-transaction' %}">Deposit/Withdrawal</a>
+</div>
 
-<p>Total portfolio value: {{ total_portfolio_value }}</p>
-<p>Total cash value: {{ cash_balance }}</p>
+<p>Total portfolio value: <span class="value-highlight">{{ total_portfolio_value }}</span></p>
+<p>Total cash value: <span class="value-highlight">{{ cash_balance }}</span></p>
 
 <!-- Refresh Portfolio Form -->
 <form method="post" action="{% url 'dashboard' %}">
     {% csrf_token %}
-    <button type="submit">Refresh Portfolio</button>
+    <button type="submit" class="button">Refresh Portfolio</button>
 </form>
 
-<table>
+<table class="table">
     <thead>
         <tr>
             <th>Asset Type</th>
@@ -51,7 +53,7 @@
         </tr>
         {% empty %}
             <tr>
-                <td colspan="100%">Looks like your portfolio has no assets yet.</td>
+                <td colspan="11">Looks like your portfolio has no assets yet.</td>
             </tr>
         {% endfor %}
     </tbody>

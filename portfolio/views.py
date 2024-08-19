@@ -54,7 +54,7 @@ class PortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         Refreshes the portfolio entries by updating the current prices and recalculating dependent fields.
         """
         refresh_portfolio(request.user)
-        return Response({"detail": "Portfolio refreshed successfully."}, status=status.HTTP_201_OK)
+        return Response({"detail": "Portfolio refreshed successfully."}, status=status.HTTP_200_OK)
 
 
 class InitialSetupView(APIView):
@@ -103,7 +103,7 @@ class InitialSetupView(APIView):
                 else:
                     return Response(entry_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"detail": "Initial setup completed successfully."}, status=status.HTTP_201_OK)
+        return Response({"detail": "Initial setup completed successfully."}, status=status.HTTP_201_CREATED)
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -172,5 +172,5 @@ class BalanceUpdateView(APIView):
             CashBalance.objects.update_or_create(
                 user=request.user, defaults={'balance': balance}
             )
-            return Response({"detail": "Cash balance updated successfully."}, status=status.HTTP_201_OK)
+            return Response({"detail": "Cash balance updated successfully."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

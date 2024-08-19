@@ -36,7 +36,8 @@ class Dashboard(View):
         refresh_url = f"{settings.API_BASE_URL}/portfolio/refresh/"
         refresh_response = requests.post(refresh_url, headers={'Authorization': f'Bearer {request.COOKIES["auth_token"]}'})
 
-        if refresh_response.status_code == 201:
+        if refresh_response.status_code == 200:
+            messages.success(request, "Portfolio refreshed successfully.")
             return self.get(request)  # Re-render the dashboard with the updated data
 
         # Handle any errors during the refresh process
@@ -124,6 +125,7 @@ class AssetTransaction(View):
 
 class CashTransaction(View):
     def get(self, request):
+        request_url = f"{settings.API_BASE_URL}/transactions/"
         return render(request, 'portfolio/cash_transaction.html', {'form': CashTransactionForm()})
     
     def post(self, request):
