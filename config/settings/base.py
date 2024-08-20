@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     'djoser',
     'drf_yasg',
     'django_celery_beat',
-    'tailwind',
     # Local
     'accounts',
     'portfolio',
