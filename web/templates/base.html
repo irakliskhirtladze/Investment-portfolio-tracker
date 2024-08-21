@@ -14,10 +14,9 @@
 
 <body>
     <div id="wrapper" class="d-flex">
+        {% block sidebar %}
         <!-- Sidebar Section -->
         <aside id="sidebar-wrapper" class="d-flex flex-column position-fixed vh-100 bg-light border-right">
-            <button class="btn btn-primary" id="menu-toggle">Toggle Sidebar</button>
-            {% block sidebar %}
             <div class="d-flex flex-column justify-content-between h-100 w-100">
                 <div>
                     <div class="sidebar-heading p-3">Hi {{ user.email }}</div>
@@ -34,8 +33,8 @@
                     <a href="{% url 'logout' %}" class="list-group-item list-group-item-action">Logout</a>
                 </div>
             </div>
-            {% endblock %}
         </aside>
+        {% endblock %}
 
         <!-- Main Content Section -->
         <main id="page-content-wrapper" class="container-fluid ml-auto mt-4" style="margin-left: 300px;">

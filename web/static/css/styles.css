@@ -16,15 +16,6 @@ body {
     height: 100%; /* Make the sidebar full height */
 }
 
-/* Toggled sidebar to collapse */
-#wrapper.toggled #sidebar-wrapper {
-    width: 80px; /* Collapse to a smaller width */
-}
-
-#wrapper.toggled #page-content-wrapper {
-    margin-left: 80px; /* Adjust the main content margin when sidebar is collapsed */
-}
-
 /* Page Content Wrapper */
 #page-content-wrapper {
     margin-left: 300px;  /* This value should match the sidebar width */
@@ -59,18 +50,4 @@ body {
 #sidebar-wrapper .list-group-item:hover {
     background-color: #003a74 !important; /* Hover background color */
     color: #00b3ff !important; /* Hover text color */
-}
-
-/* Button inside the sidebar */
-#menu-toggle {
-    margin: 10px;
-    background-color: #004080;
-    border: none;
-    color: #ffffff;
-    cursor: pointer;
-}
-
-#menu-toggle:hover {
-    background-color: #cfded7;
-    color: #004080;
 }

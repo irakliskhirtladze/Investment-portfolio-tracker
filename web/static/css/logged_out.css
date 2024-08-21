@@ -1,0 +1,106 @@
+/* General body and layout styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* Ensure full height for the container */
+.container-fluid {
+    height: 100vh;
+    display: flex;
+}
+
+/* Custom color for the left column */
+.custom-left-column {
+    background-color: #004c93 !important; /* Replace with your desired custom color */
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0;
+}
+
+/* Narrower form container */
+.form-container {
+    width: 75%; /* Adjust this width as needed */
+    max-width: 500px; /* Ensures form doesn't get too wide on larger screens */
+    padding: 20px;
+    background-color: transparent;
+    /* border-radius: 8px; */
+    /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); */
+}
+
+/* Form headings */
+.form-container h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Form labels */
+.form-label {
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Form input fields */
+.form-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Form submit button */
+.btn {
+    background-color: #007bff;
+    color: #ffffff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 60% !important;
+    font-size: 16px;
+    display: block; /* Ensures the button behaves like a block element */
+    margin: 0 auto; /* Centers the button horizontally */
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Text in the left column */
+.custom-left-column h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.custom-left-column p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* Center the paragraph and link */
+.centered-text {
+    text-align: center; /* Centers the text horizontally */
+    margin-top: 20px;   /* Adds some spacing above the paragraph */
+    font-size: 16px;    /* Adjust the font size if needed */
+}
+
+/* Styling for the link */
+.centered-text a {
+    color: #007bff; /* Bootstrap primary color */
+    text-decoration: none; /* Removes the underline */
+}
+
+.centered-text a:hover {
+    text-decoration: underline; /* Adds underline on hover */
+}
