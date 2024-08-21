@@ -5,161 +5,72 @@ body {
     padding: 0;
     background-color: #f4f4f4;
     overflow-x: hidden;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
-/* Header styles */
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Sidebar Wrapper */
+#sidebar-wrapper {
+    width: 300px;
+    background-color: #004080 !important;
+    color: #ffffff;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000; /* Ensure header stays on top */
-    box-sizing: border-box;
+    height: 100%; /* Make the sidebar full height */
 }
 
-/* User email display */
-.header-user {
-    margin-left: auto;
-    font-weight: bold;
-    font-size: 18px;
+/* Toggled sidebar to collapse */
+#wrapper.toggled #sidebar-wrapper {
+    width: 80px; /* Collapse to a smaller width */
 }
 
-header nav {
-    flex-grow: 1;
+#wrapper.toggled #page-content-wrapper {
+    margin-left: 80px; /* Adjust the main content margin when sidebar is collapsed */
 }
 
-header ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-header ul li {
-    display: block;
-}
-
-header ul li a {
-    color: #fff;
-    text-decoration: none;
-}
-
-header ul li a:hover {
-    text-decoration: underline;
-}
-
-/* Main content styles */
-main {
-    flex-grow: 1;
-    overflow-y: auto; /* Enable vertical scrolling */
-    margin-top: 80px; /* Space to compensate for fixed header */
+/* Page Content Wrapper */
+#page-content-wrapper {
+    margin-left: 300px;  /* This value should match the sidebar width */
     padding: 20px;
 }
 
-/* Footer styles */
-footer {
-    background-color: #333;
-    color: #fff;
+/* Sidebar Heading */
+.sidebar-heading {
+    font-size: 1.2rem;
     text-align: center;
-    padding: 10px 0;
-    position: fixed;
+    padding: 15px 0;
+}
+
+/* Sidebar Footer */
+#sidebar-wrapper .sidebar-footer {
+    text-align: left;
+    padding: 0px;
+    position: absolute;
     bottom: 0;
     width: 100%;
 }
 
-/* Page titles */
-.page-title {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-/* Navigation links in content */
-.nav-links {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.nav-link {
-    text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
-}
-
-.nav-link:hover {
-    text-decoration: underline;
-}
-
-/* Messages */
-ul.messages {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-ul.messages li {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-}
-
-ul.messages li.success {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-ul.messages li.error {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-/* Buttons */
-.button {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
+/* List Group Item */
+#sidebar-wrapper .list-group-item {
     border: none;
-    border-radius: 5px;
+    padding: 10px 15px;
+    background-color: #004080 !important; /* Background color for all links */
+    color: #ffffff;
+}
+
+/* Hover Effect */
+#sidebar-wrapper .list-group-item:hover {
+    background-color: #003a74 !important; /* Hover background color */
+    color: #00b3ff !important; /* Hover text color */
+}
+
+/* Button inside the sidebar */
+#menu-toggle {
+    margin: 10px;
+    background-color: #004080;
+    border: none;
+    color: #ffffff;
     cursor: pointer;
-    text-align: center;
-    display: inline-block;
 }
 
-.button:hover {
-    background-color: #0056b3;
+#menu-toggle:hover {
+    background-color: #cfded7;
+    color: #004080;
 }
-
-/* Table styles */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.table th, .table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-}
-
-.table th {
-    background-color: #f2f2f2;
-    color: #333;
-}
-
-

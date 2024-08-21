@@ -3,60 +3,57 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="page-title">DASHBOARD</h1>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Dashboard</h1>
+    </div>
 
-<div class="nav-links">
-    <a class="nav-link" href="{% url 'initial-setup' %}">Portfolio setup/reset</a>
-    <a class="nav-link" href="{% url 'asset-transaction' %}">New transaction</a>
-    <a class="nav-link" href="{% url 'cash-transaction' %}">Deposit/Withdrawal</a>
-</div>
+    <p>Total portfolio value: {{ total_portfolio_value }}</p>
+    <p>Total cash value: {{ cash_balance }}</p>
 
-<p>Total portfolio value: <span class="value-highlight">{{ total_portfolio_value }}</span></p>
-<p>Total cash value: <span class="value-highlight">{{ cash_balance }}</span></p>
+    <!-- Refresh Portfolio Form -->
+    <form method="post" action="{% url 'dashboard' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Refresh Portfolio</button>
+    </form>
 
-<!-- Refresh Portfolio Form -->
-<form method="post" action="{% url 'dashboard' %}">
-    {% csrf_token %}
-    <button type="submit" class="button">Refresh Portfolio</button>
-</form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Asset Type</th>
-            <th>Symbol</th>
-            <th>Name</th>
-            <th>Quantity</th>
-            <th>Average Price</th>
-            <th>Commissions</th>
-            <th>Cost Basis</th>
-            <th>Current Price</th>
-            <th>Current Value</th>
-            <th>Profit/Loss</th>
-            <th>Profit/Loss %</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for entry in portfolio_entries %}
-        <tr>
-            <td>{{ entry.asset_type }}</td>
-            <td>{{ entry.asset_symbol }}</td>
-            <td>{{ entry.asset_name }}</td>
-            <td>{{ entry.quantity }}</td>
-            <td>{{ entry.average_trade_price }}</td>
-            <td>{{ entry.commissions }}</td>
-            <td>{{ entry.cost_basis }}</td>
-            <td>{{ entry.current_price }}</td>
-            <td>{{ entry.current_value }}</td>
-            <td>{{ entry.profit_loss }}</td>
-            <td>{{ entry.profit_loss_percent }}</td>
-        </tr>
-        {% empty %}
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th>Asset Type</th>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Average Price</th>
+                <th>Commissions</th>
+                <th>Cost Basis</th>
+                <th>Current Price</th>
+                <th>Current Value</th>
+                <th>Profit/Loss</th>
+                <th>Profit/Loss %</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in portfolio_entries %}
+            <tr>
+                <td>{{ entry.asset_type }}</td>
+                <td>{{ entry.asset_symbol }}</td>
+                <td>{{ entry.asset_name }}</td>
+                <td>{{ entry.quantity }}</td>
+                <td>{{ entry.average_trade_price }}</td>
+                <td>{{ entry.commissions }}</td>
+                <td>{{ entry.cost_basis }}</td>
+                <td>{{ entry.current_price }}</td>
+                <td>{{ entry.current_value }}</td>
+                <td>{{ entry.profit_loss }}</td>
+                <td>{{ entry.profit_loss_percent }}</td>
+            </tr>
+            {% empty %}
             <tr>
                 <td colspan="11">Looks like your portfolio has no assets yet.</td>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
-    
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
