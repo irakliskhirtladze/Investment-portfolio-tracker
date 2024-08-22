@@ -29,18 +29,7 @@
           <h2 class="text-center">Register</h2>
           <form method="post">
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label for="id_email" class="form-label">Email</label>
-                    {{ form.email }}
-                </div>
-                <div class="mb-3">
-                    <label for="id_password" class="form-label">Password</label>
-                    {{ form.password }}
-                </div>
-                <div class="mb-3">
-                    <label for="id_password_confirm" class="form-label">Confirm password</label>
-                    {{ form.password_confirm }}
-                </div>
+                {{ form.as_p }}
               <button type="submit" class="btn btn-primary w-100">Register</button>
           </form>
           <br><br>
