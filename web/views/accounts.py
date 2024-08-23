@@ -5,8 +5,9 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.conf import settings
 import requests
+
 from web.forms import LoginForm, RegisterForm, ResendActivationForm
-from web.utils import redirect_authenticated_user
+from web.utils import redirect_authenticated_user, extract_and_add_error_messages
 
 import http.client
 import json
@@ -56,8 +57,7 @@ class LoginView(View):
                     register_url = reverse('register')
                     messages.error(
                         request, 
-                        f"No account found with this email. "
-                        f"Please <a href='{register_url}'>register</a>."
+                        f"No account found with this email."
                     )
             else:
                 messages.error(request, "Error checking user status. Please try again.")
@@ -105,8 +105,7 @@ class RegisterView(View):
                 return redirect('login')
             else:
                 errors = response.json()
-                for field, error in errors.items():
-                    form.add_error(field, error)
+                extract_and_add_error_messages(request, errors)
         
         return render(request, self.template_name, {'form': form})
 
@@ -135,6 +134,13 @@ class ResendActivationView(View):
         form = ResendActivationForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
+            status_response = requests.post(f"{settings.API_BASE_URL}/auth/check-status/", data={'email': email})
+            if status_response.status_code == 200:
+                user_status = status_response.json().get('status')
+                if user_status != 'inactive':
+                    messages.error(request, "User with this email is either active or not yet registered.")
+                    return redirect("resend_activation")
+
             url = f"{settings.API_BASE_URL}/auth/users/resend_activation/"
             response = requests.post(url, data={'email': email})
 
